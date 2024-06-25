@@ -51,7 +51,7 @@ export default function AddPasswordScreen({navigation}) {
           theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
         />
         <Pressable mode="contained" onPress={handleSave} style={styles.button}>
-          <Text style={styles.buttonText}>Save</Text>
+          <Text style={styles.buttonText}>Save Password</Text>
         </Pressable>
       </View>
     </TouchableWithoutFeedback>
