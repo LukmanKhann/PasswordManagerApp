@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import firestore from '@react-native-firebase/firestore';
 
 const PasswordContext = createContext();
 
@@ -7,51 +7,52 @@ export const PasswordProvider = ({ children }) => {
   const [passwords, setPasswords] = useState([]);
 
   useEffect(() => {
-    // Load passwords from AsyncStorage on component mount
+    // Load passwords from Firestore on component mount
     loadPasswords();
   }, []);
 
   const loadPasswords = async () => {
     try {
-      const passwordsFromStorage = await AsyncStorage.getItem('passwords');
-      if (passwordsFromStorage !== null) {
-        setPasswords(JSON.parse(passwordsFromStorage));
-      }
+      const passwordCollection = await firestore().collection('passwords').get();
+      const passwordsFromFirestore = passwordCollection.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setPasswords(passwordsFromFirestore);
     } catch (error) {
-      console.error('Error loading passwords from AsyncStorage:', error);
+      console.error('Error loading passwords from Firestore:', error);
     }
   };
 
-  const savePasswords = async (newPasswords) => {
+  const addPassword = async (title, username, password) => {
     try {
-      await AsyncStorage.setItem('passwords', JSON.stringify(newPasswords));
+      const newPassword = { title, username, password };
+      const newDocRef = await firestore().collection('passwords').add(newPassword);
+      setPasswords(prevPasswords => [...prevPasswords, { id: newDocRef.id, ...newPassword }]);
     } catch (error) {
-      console.error('Error saving passwords to AsyncStorage:', error);
+      console.error('Error adding password to Firestore:', error);
     }
   };
 
-  const addPassword = (title, username, password) => {
-    const newPassword = { id: Date.now().toString(), title, username, password };
-    const newPasswords = [...passwords, newPassword];
-    setPasswords(newPasswords);
-    savePasswords(newPasswords); // Save updated passwords to AsyncStorage
+  const editPassword = async (id, title, username, password) => {
+    try {
+      const updatedPassword = { title, username, password };
+      await firestore().collection('passwords').doc(id).update(updatedPassword);
+      setPasswords(prevPasswords =>
+        prevPasswords.map(item => (item.id === id ? { id, ...updatedPassword } : item))
+      );
+    } catch (error) {
+      console.error('Error updating password in Firestore:', error);
+    }
   };
 
-  const editPassword = (id, title, username, password) => {
-    const updatedPasswords = passwords.map(item => {
-      if (item.id === id) {
-        return { ...item, title, username, password };
-      }
-      return item;
-    });
-    setPasswords(updatedPasswords);
-    savePasswords(updatedPasswords); // Save updated passwords to AsyncStorage
-  };
-
-  const deletePassword = (id) => {
-    const updatedPasswords = passwords.filter(item => item.id !== id);
-    setPasswords(updatedPasswords);
-    savePasswords(updatedPasswords); // Save updated passwords to AsyncStorage
+  const deletePassword = async (id) => {
+    try {
+      await firestore().collection('passwords').doc(id).delete();
+      setPasswords(prevPasswords => prevPasswords.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Error deleting password from Firestore:', error);
+    }
   };
 
   return (
