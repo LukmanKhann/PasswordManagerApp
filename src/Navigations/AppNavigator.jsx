@@ -1,9 +1,9 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import AddPasswordScreen from '../screens/AddPasswordScreen';
-import PasswordListScreen from '../screens/PasswordListScreen';
-import SettingScreen from '../screens/SettingScreen';
+import AddPasswordScreen from '../screens/AddPassword/AddPasswordScreen';
+import PasswordListScreen from '../screens/PasswordList/PasswordListScreen';
+import SettingScreen from '../screens/SettingsScreen/SettingScreen';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -17,17 +17,18 @@ const AppNavigator = () => {
         initialRouteName="Passwords"
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#fff', 
+            backgroundColor: '#fff',
           },
-          headerTintColor: '#000000', 
-          headerTitleAlign: 'center', 
-          tabBarActiveTintColor: '#000000'
+          headerTintColor: '#000000',
+          headerTitleAlign: 'center',
+          tabBarActiveTintColor: '#000000',
         }}>
         <Tab.Screen
           name="Passwords"
           component={PasswordListScreen}
           options={{
-            tabBarLabel: 'Password List',
+            title: 'Credentials',
+            tabBarLabel: 'Credentials List',
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons
                 testID={'materialIcon'}
@@ -42,8 +43,8 @@ const AppNavigator = () => {
           name="AddPassword"
           component={AddPasswordScreen}
           options={{
-            title: 'Add Password',
-            tabBarLabel: 'Add Password',
+            title: 'Add Credentials',
+            tabBarLabel: 'Add Credentials',
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons
                 testID={'materialIcon'}

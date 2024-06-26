@@ -2,7 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import AppNavigator from './src/Navigations/AppNavigator';
 import {PaperProvider} from 'react-native-paper';
-import {PasswordProvider} from './src/screens/PasswordContext';
+import {PasswordProvider} from './src/screens/PasswordContext/PasswordContext';
 import {collection, addDoc, getDocs} from 'firebase/firestore';
 
 // try {

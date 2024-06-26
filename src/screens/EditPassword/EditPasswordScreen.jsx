@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
-import PasswordContext from '../screens/PasswordContext';
+import PasswordContext from './PasswordContext/PasswordContext';
 
 const EditPasswordScreen = ({navigation, route}) => {
   const {id} = route.params;
