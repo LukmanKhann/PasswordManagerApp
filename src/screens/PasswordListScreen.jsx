@@ -5,6 +5,7 @@ import {
   FlatList,
   Alert,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import {
   List,
@@ -18,13 +19,15 @@ import {
 import PasswordContext from '../screens/PasswordContext';
 
 const PasswordListScreen = ({navigation}) => {
-  const {passwords, editPassword, deletePassword} = useContext(PasswordContext);
+  const {passwords, editPassword, deletePassword, loadPasswords} =
+    useContext(PasswordContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [editId, setEditId] = useState('');
   const [title, setTitle] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleEdit = id => {
     const passwordToEdit = passwords.find(item => item.id === id);
@@ -58,9 +61,15 @@ const PasswordListScreen = ({navigation}) => {
     );
   };
 
-  const handleSaveChanges = () => {
-    editPassword(editId, title, username, password);
+  const handleSaveChanges = async () => {
+    await editPassword(editId, title, username, password);
     setModalVisible(false);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadPasswords();
+    setRefreshing(false);
   };
 
   const renderItem = ({item}) => (
@@ -95,6 +104,9 @@ const PasswordListScreen = ({navigation}) => {
         data={passwords}
         renderItem={renderItem}
         keyExtractor={item => item.id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
       <FAB
         style={styles.fab}
