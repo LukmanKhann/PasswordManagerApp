@@ -30,7 +30,7 @@ export default function AddPasswordScreen({navigation}) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Title style={styles.title}>Add New Password</Title>
+        <Title style={styles.title}>Add New Credentials</Title>
         <Formik
           initialValues={{title: '', username: '', password: ''}}
           validationSchema={validationSchema}

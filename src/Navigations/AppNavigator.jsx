@@ -6,6 +6,7 @@ import PasswordListScreen from '../screens/PasswordList/PasswordListScreen';
 import SettingScreen from '../screens/SettingsScreen/SettingScreen';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import PasswordGenerator from '../screens/PasswordGenerator/PasswordGenerator';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,11 +29,11 @@ const AppNavigator = () => {
           component={PasswordListScreen}
           options={{
             title: 'Credentials',
-            tabBarLabel: 'Credentials List',
+            tabBarLabel: 'Vault',
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons
                 testID={'materialIcon'}
-                name="folder"
+                name="clipboard-file"
                 color={color}
                 size={26}
               />
@@ -49,6 +50,22 @@ const AppNavigator = () => {
               <MaterialCommunityIcons
                 testID={'materialIcon'}
                 name="lock"
+                color={color}
+                size={26}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="PasswordGenerator"
+          component={PasswordGenerator}
+          options={{
+            title: 'Password Generator',
+            tabBarLabel: 'Generator',
+            tabBarIcon: ({color}) => (
+              <MaterialCommunityIcons
+                testID={'materialIcon'}
+                name="cog-refresh"
                 color={color}
                 size={26}
               />

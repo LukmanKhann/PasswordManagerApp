@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -23,6 +23,7 @@ import * as Yup from 'yup';
 
 import PasswordContext from '../PasswordContext/PasswordContext';
 import Snackbar from 'react-native-snackbar';
+import PasswordListSearchBar from './Components/PasswordListSearchBar';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Domain is required'),
@@ -40,6 +41,12 @@ const PasswordListScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState({});
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredPasswords, setFilteredPasswords] = useState(passwords);
+
+  useEffect(() => {
+    setFilteredPasswords(passwords);
+  }, [passwords]);
 
   const handleEdit = id => {
     const passwordToEdit = passwords.find(item => item.id === id);
@@ -119,6 +126,20 @@ const PasswordListScreen = ({navigation}) => {
     }));
   };
 
+  const handleSearch = query => {
+    setSearchQuery(query);
+    if (query) {
+      const filtered = passwords.filter(
+        item =>
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          item.username.toLowerCase().includes(query.toLowerCase()),
+      );
+      setFilteredPasswords(filtered);
+    } else {
+      setFilteredPasswords(passwords);
+    }
+  };
+
   const renderItem = ({item}) => (
     <View style={styles.listItem}>
       <View style={styles.itemContent}>
@@ -171,8 +192,9 @@ const PasswordListScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <PasswordListSearchBar value={searchQuery} onChangeText={handleSearch} />
       <FlatList
-        data={passwords}
+        data={filteredPasswords}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         refreshControl={
