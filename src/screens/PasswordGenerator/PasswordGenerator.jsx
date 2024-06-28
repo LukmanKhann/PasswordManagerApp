@@ -3,7 +3,6 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import React, {useState} from 'react';
 import {Formik} from 'formik';
 import {
-  Clipboard,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {IconButton} from 'react-native-paper';
 import Snackbar from 'react-native-snackbar';
 
