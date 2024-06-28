@@ -6,7 +6,7 @@ const PasswordListSearchBar = ({value, onChangeText}) => {
   return (
     <View style={styles.container}>
       <Searchbar
-        placeholder="Search for items"
+        placeholder="Search"
         iconColor="#000000"
         rippleColor="#000000"
         onChangeText={onChangeText}

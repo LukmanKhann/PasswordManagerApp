@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   RefreshControl,
   Text,
-  Clipboard,
 } from 'react-native';
 import {
   List,
@@ -18,6 +17,7 @@ import {
   TextInput,
   Button,
 } from 'react-native-paper';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 
@@ -80,8 +80,8 @@ const PasswordListScreen = ({navigation}) => {
     );
   };
 
-  const handleSaveChanges = async () => {
-    await editPassword(editId, title, username, password);
+  const handleSaveChanges = async values => {
+    await editPassword(editId, values.title, values.username, values.password);
     setModalVisible(false);
   };
 
@@ -170,19 +170,19 @@ const PasswordListScreen = ({navigation}) => {
         <TouchableOpacity onPress={() => togglePasswordVisibility(item.id)}>
           <IconButton
             icon={passwordVisible[item.id] ? 'eye-off' : 'eye'}
-            size={20}
+            size={18}
             color="#6200ea"
           />
         </TouchableOpacity>
         <IconButton
           icon="pencil"
-          size={20}
+          size={18}
           color="#6200ea"
           onPress={() => handleEdit(item.id)}
         />
         <IconButton
           icon="delete"
-          size={20}
+          size={18}
           color="#e91e63"
           onPress={() => handleDelete(item.id)}
         />
@@ -210,6 +210,7 @@ const PasswordListScreen = ({navigation}) => {
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
           <Formik
+            enableReinitialize
             initialValues={{title, username, password}}
             validationSchema={validationSchema}
             onSubmit={handleSaveChanges}>
@@ -327,8 +328,8 @@ const styles = StyleSheet.create({
   actionIcons: {
     flexDirection: 'row',
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 0,
+    right: 0,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -362,7 +363,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 15,
     marginBottom: 5,
   },
   usernameRow: {
