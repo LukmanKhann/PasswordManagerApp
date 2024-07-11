@@ -20,10 +20,10 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-
 import PasswordContext from '../PasswordContext/PasswordContext';
 import Snackbar from 'react-native-snackbar';
 import PasswordListSearchBar from './Components/PasswordListSearchBar';
+import {ThemeContext} from '../../Theme/ThemeProvider';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Domain is required'),
@@ -34,6 +34,7 @@ const validationSchema = Yup.object().shape({
 const PasswordListScreen = ({navigation}) => {
   const {passwords, editPassword, deletePassword, loadPasswords} =
     useContext(PasswordContext);
+  const {theme} = useContext(ThemeContext);
   const [modalVisible, setModalVisible] = useState(false);
   const [editId, setEditId] = useState('');
   const [title, setTitle] = useState('');
@@ -96,7 +97,7 @@ const PasswordListScreen = ({navigation}) => {
     Snackbar.show({
       text: 'Username copied to clipboard',
       duration: Snackbar.LENGTH_SHORT,
-      backgroundColor: '#121212',
+      backgroundColor: theme === 'dark' ? '#121212' : '#ffffff',
       action: {
         text: 'Close',
         textColor: '#b2b2b2',
@@ -110,7 +111,7 @@ const PasswordListScreen = ({navigation}) => {
     Snackbar.show({
       text: 'Password copied to clipboard',
       duration: Snackbar.LENGTH_SHORT,
-      backgroundColor: '#121212',
+      backgroundColor: theme === 'dark' ? '#121212' : '#ffffff',
       action: {
         text: 'Close',
         textColor: '#b2b2b2',
@@ -141,23 +142,39 @@ const PasswordListScreen = ({navigation}) => {
   };
 
   const renderItem = ({item}) => (
-    <View style={styles.listItem}>
+    <View
+      style={[
+        styles.listItem,
+        {backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff'},
+      ]}>
       <View style={styles.itemContent}>
-        <List.Icon icon="lock-outline" />
+        <List.Icon
+          icon="lock-outline"
+          color={theme === 'dark' ? '#ffffff' : '#000000'}
+        />
         <View style={styles.textContent}>
-          <Text selectable style={styles.title}>
+          <Text
+            selectable
+            style={[
+              styles.title,
+              {color: theme === 'dark' ? '#ffffff' : '#000000'},
+            ]}>
             {item.title}
           </Text>
           <View style={styles.usernameRow}>
             <Text style={styles.boldText}>Username: </Text>
-            <Text selectable>{item.username}</Text>
+            <Text
+              selectable={{color: theme === 'dark' ? '#ffffff' : '#000000'}}>
+              {item.username}
+            </Text>
             <TouchableOpacity onPress={() => copyUsername(item.username)}>
               <IconButton icon="content-copy" size={17} color="#6200ea" />
             </TouchableOpacity>
           </View>
           <View style={styles.passwordRow}>
             <Text style={styles.boldText}>Password: </Text>
-            <Text selectable>
+            <Text
+              selectable={{color: theme === 'dark' ? '#ffffff' : '#000000'}}>
               {passwordVisible[item.id] ? item.password : '********'}
             </Text>
             <TouchableOpacity onPress={() => copyPassword(item.password)}>
@@ -191,8 +208,16 @@ const PasswordListScreen = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
-      <PasswordListSearchBar value={searchQuery} onChangeText={handleSearch} />
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5'},
+      ]}>
+      <PasswordListSearchBar
+        value={searchQuery}
+        onChangeText={handleSearch}
+        theme={theme}
+      />
       <FlatList
         data={filteredPasswords}
         renderItem={renderItem}
@@ -208,7 +233,13 @@ const PasswordListScreen = ({navigation}) => {
         color="#ffffff"
       />
       <Portal>
-        <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
+        <Modal
+          visible={modalVisible}
+          onDismiss={() => setModalVisible(false)}
+          contentContainerStyle={[
+            styles.modalContent,
+            {backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff'},
+          ]}>
           <Formik
             enableReinitialize
             initialValues={{title, username, password}}
@@ -222,7 +253,7 @@ const PasswordListScreen = ({navigation}) => {
               errors,
               touched,
             }) => (
-              <View style={styles.modalContent}>
+              <View>
                 <TextInput
                   label="Domain"
                   value={values.title}
@@ -231,7 +262,7 @@ const PasswordListScreen = ({navigation}) => {
                   style={styles.input}
                   theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
                 />
-                {touched.username && errors.title && (
+                {touched.title && errors.title && (
                   <Text style={styles.errorText}>{errors.title}</Text>
                 )}
 
@@ -260,22 +291,24 @@ const PasswordListScreen = ({navigation}) => {
                     }}
                   />
                   <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}>
+                    onPress={() => setPasswordVisible(!passwordVisible)}
+                    style={styles.visibilityIcon}>
                     <IconButton
-                      icon={passwordVisible ? 'eye-off' : 'eye'}
+                      icon={passwordVisible ? 'eye' : 'eye-off'}
                       size={20}
                       color="#6200ea"
                     />
                   </TouchableOpacity>
                 </View>
-                {touched.username && errors.password && (
+                {touched.password && errors.password && (
                   <Text style={styles.errorText}>{errors.password}</Text>
                 )}
 
                 <Button
                   mode="contained"
                   onPress={handleSubmit}
-                  style={styles.button}>
+                  style={styles.saveButton}
+                  labelStyle={styles.saveButtonText}>
                   Save Changes
                 </Button>
               </View>
@@ -287,35 +320,19 @@ const PasswordListScreen = ({navigation}) => {
   );
 };
 
-export default PasswordListScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
-    backgroundColor: '#121212',
+    padding: 10,
   },
   listItem: {
-    backgroundColor: '#ffffff',
-    marginBottom: 8,
-    borderRadius: 8,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    padding: 16,
-    height: 140,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'relative',
+    justifyContent: 'space-between',
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 5,
+    elevation: 2,
   },
   itemContent: {
     flexDirection: 'row',
@@ -323,61 +340,68 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textContent: {
-    marginLeft: 16,
-  },
-  actionIcons: {
-    flexDirection: 'row',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    margin: 20,
-    borderRadius: 10,
-  },
-  input: {
-    marginBottom: 16,
-    backgroundColor: '#ffffff',
-  },
-  button: {
-    marginTop: 24,
-    paddingVertical: 7,
-    width: '70%',
-    backgroundColor: '#121212',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-    alignSelf: 'center',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  boldText: {
-    color: '#3a3a3a',
-    letterSpacing: 0.2,
-    fontWeight: '500',
-    fontSize: 12,
+    marginLeft: 10,
+    flex: 1,
   },
   title: {
+    fontSize: 16,
     fontWeight: 'bold',
-    fontSize: 15,
-    marginBottom: 5,
   },
   usernameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 24,
+    marginVertical: 3,
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 24,
+    marginVertical: 3,
+  },
+  actionIcons: {
+    flexDirection: 'row',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#6200ee',
+  },
+  modalContent: {
+    backgroundColor: '#ffffff',
+    padding: 20,
+    margin: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  input: {
+    marginBottom: 10,
+    backgroundColor: '#F3F4F9',
   },
   errorText: {
-    fontSize: 12,
     color: 'red',
+    marginBottom: 5,
+    marginLeft: 10,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  visibilityIcon: {
+    position: 'absolute',
+    right: 10,
+  },
+  saveButton: {
+    marginTop: 10,
+    backgroundColor: '#6200ee',
+  },
+  saveButtonText: {
+    color: '#ffffff',
   },
 });
+
+export default PasswordListScreen;

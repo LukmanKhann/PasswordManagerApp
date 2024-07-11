@@ -7,11 +7,12 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import {Formik } from 'formik';
+import {Formik} from 'formik';
 import * as Yup from 'yup';
 
 import {TextInput, Title} from 'react-native-paper';
 import PasswordContext from '../PasswordContext/PasswordContext';
+import {ThemeContext} from '../../Theme/ThemeProvider';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Domain is required'),
@@ -21,11 +22,14 @@ const validationSchema = Yup.object().shape({
 
 export default function AddPasswordScreen({navigation}) {
   const {addPassword} = useContext(PasswordContext);
+  const {theme} = useContext(ThemeContext);
 
   const handleSave = values => {
     addPassword(values.title, values.username, values.password);
     navigation.navigate('Passwords');
   };
+
+  const styles = getStyles(theme);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -51,7 +55,12 @@ export default function AddPasswordScreen({navigation}) {
                 onBlur={handleBlur('title')}
                 style={styles.input}
                 mode="outlined"
-                theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
+                theme={{
+                  colors: {
+                    primary: theme === 'dark' ? '#ffffff' : '#121212',
+                    background: theme === 'dark' ? '#121212' : '#F3F4F9',
+                  },
+                }}
               />
               {touched.title && errors.title && (
                 <Text style={styles.errorText}>{errors.title}</Text>
@@ -64,7 +73,12 @@ export default function AddPasswordScreen({navigation}) {
                 onBlur={handleBlur('username')}
                 style={styles.input}
                 mode="outlined"
-                theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
+                theme={{
+                  colors: {
+                    primary: theme === 'dark' ? '#ffffff' : '#121212',
+                    background: theme === 'dark' ? '#121212' : '#F3F4F9',
+                  },
+                }}
               />
               {touched.username && errors.username && (
                 <Text style={styles.errorText}>{errors.username}</Text>
@@ -78,7 +92,12 @@ export default function AddPasswordScreen({navigation}) {
                 secureTextEntry
                 style={styles.input}
                 mode="outlined"
-                theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
+                theme={{
+                  colors: {
+                    primary: theme === 'dark' ? '#ffffff' : '#121212',
+                    background: theme === 'dark' ? '#121212' : '#F3F4F9',
+                  },
+                }}
               />
               {touched.password && errors.password && (
                 <Text style={styles.errorText}>{errors.password}</Text>
@@ -98,42 +117,42 @@ export default function AddPasswordScreen({navigation}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#f5f5f5',
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    alignSelf: 'center',
-    color: '#370100',
-    fontWeight: '500',
-  },
-  input: {
-    marginBottom: 5,
-    backgroundColor: '#F3F4F9',
-    borderRadius: 8,
-    // borderWidth: 0.4,
-  },
-  button: {
-    marginTop: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
-    backgroundColor: '#121212',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    fontSize: 12,
-    color: 'red',
-  },
-});
+const getStyles = theme =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      padding: 24,
+      backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5',
+    },
+    title: {
+      fontSize: 24,
+      marginBottom: 24,
+      alignSelf: 'center',
+      color: theme === 'dark' ? '#ffffff' : '#370100',
+      fontWeight: '500',
+    },
+    input: {
+      marginBottom: 5,
+      backgroundColor: theme === 'dark' ? '#121212' : '#F3F4F9',
+      borderRadius: 8,
+    },
+    button: {
+      marginTop: 24,
+      paddingVertical: 12,
+      borderRadius: 25,
+      backgroundColor: theme === 'dark' ? '#ffffff' : '#121212',
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 5,
+    },
+    buttonText: {
+      color: theme === 'dark' ? '#121212' : '#FFFFFF',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    errorText: {
+      fontSize: 12,
+      color: 'red',
+    },
+  });

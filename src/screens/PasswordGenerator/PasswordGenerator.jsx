@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Formik} from 'formik';
 import {
   SafeAreaView,
@@ -14,6 +14,7 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import {IconButton} from 'react-native-paper';
 import Snackbar from 'react-native-snackbar';
+import {ThemeContext} from '../../Theme/ThemeProvider';
 
 const passwordShema = Yup.object().shape({
   passwordLength: Yup.number()
@@ -23,6 +24,7 @@ const passwordShema = Yup.object().shape({
 });
 
 const PasswordGenerator = () => {
+  const {theme} = useContext(ThemeContext);
   const [password, setPassword] = useState('');
   const [isPasswordGenerated, setIsPasswordGenerated] = useState(false);
   const [lowerCase, setLowerCase] = useState(true);
@@ -78,7 +80,7 @@ const PasswordGenerator = () => {
     Snackbar.show({
       text: 'Password copied to clipboard',
       duration: Snackbar.LENGTH_SHORT,
-      backgroundColor: '#121212',
+      backgroundColor: theme === 'dark' ? '#ffffff' : '#121212',
       action: {
         text: 'Close',
         textColor: '#b2b2b2',
@@ -86,6 +88,8 @@ const PasswordGenerator = () => {
       },
     });
   };
+
+  const styles = getStyles(theme);
 
   return (
     <ScrollView keyboardShouldPersistTaps="handled">
@@ -133,7 +137,7 @@ const PasswordGenerator = () => {
                     disableBuiltInState
                     isChecked={lowerCase}
                     onPress={() => setLowerCase(!lowerCase)}
-                    fillColor="#1f1f1f"
+                    fillColor={theme === 'dark' ? '#ffffff' : '#1f1f1f'}
                   />
                 </View>
                 <View style={styles.checkboxContainer}>
@@ -142,7 +146,7 @@ const PasswordGenerator = () => {
                     disableBuiltInState
                     isChecked={upperCase}
                     onPress={() => setUpperCase(!upperCase)}
-                    fillColor="#1f1f1f"
+                    fillColor={theme === 'dark' ? '#ffffff' : '#1f1f1f'}
                   />
                 </View>
                 <View style={styles.checkboxContainer}>
@@ -151,7 +155,7 @@ const PasswordGenerator = () => {
                     disableBuiltInState
                     isChecked={numbers}
                     onPress={() => setNumbers(!numbers)}
-                    fillColor="#1f1f1f"
+                    fillColor={theme === 'dark' ? '#ffffff' : '#1f1f1f'}
                   />
                 </View>
                 <View style={styles.checkboxContainer}>
@@ -160,7 +164,7 @@ const PasswordGenerator = () => {
                     disableBuiltInState
                     isChecked={symbols}
                     onPress={() => setSymbols(!symbols)}
-                    fillColor="#1f1f1f"
+                    fillColor={theme === 'dark' ? '#ffffff' : '#1f1f1f'}
                   />
                 </View>
                 <View style={styles.formAction}>
@@ -202,120 +206,117 @@ const PasswordGenerator = () => {
 
 export default PasswordGenerator;
 
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 20,
-  },
-  formContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  inputWrapper: {
-    marginBottom: 15,
-  },
-  heading: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#ff0000',
-  },
-  inputStyle: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 20,
-  },
-  label: {
-    fontSize: 14,
-    color: '#6f6f6f',
-    letterSpacing: 0.4,
-  },
-  formAction: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  primaryBtn: {
-    backgroundColor: '#313131',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryBtnTxt: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryBtn: {
-    backgroundColor: '#fafafa',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 0.5,
-    borderColor: '#454545',
-  },
-  secondaryBtnTxt: {
-    color: '#454545',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 20,
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  elevatedCard: {
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  subTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#9a9a9a',
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
-  },
-  generatePassword: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  generatedPassword: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6f6f6f',
-  },
-});
+const getStyles = theme =>
+  StyleSheet.create({
+    appContainer: {
+      flex: 1,
+      backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5',
+      padding: 20,
+    },
+    formContainer: {
+      backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff',
+      borderRadius: 10,
+      padding: 20,
+      shadowColor: theme === 'dark' ? '#ffffff' : '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    inputWrapper: {
+      marginBottom: 15,
+    },
+    heading: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: theme === 'dark' ? '#ffffff' : '#333',
+      marginBottom: 5,
+    },
+    errorText: {
+      fontSize: 12,
+      color: '#ff0000',
+    },
+    inputStyle: {
+      borderWidth: 1,
+      borderColor: theme === 'dark' ? '#ffffff' : '#ccc',
+      borderRadius: 5,
+      padding: 10,
+      fontSize: 16,
+      backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f9f9f9',
+      color: theme === 'dark' ? '#ffffff' : '#000',
+    },
+    checkboxContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginVertical: 20,
+    },
+    label: {
+      fontSize: 14,
+      color: theme === 'dark' ? '#ffffff' : '#6f6f6f',
+      letterSpacing: 0.4,
+    },
+    formAction: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    primaryBtn: {
+      backgroundColor: theme === 'dark' ? '#ffffff' : '#313131',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryBtnTxt: {
+      color: theme === 'dark' ? '#000000' : '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    secondaryBtn: {
+      backgroundColor: theme === 'dark' ? '#2e2e2e' : '#fafafa',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 0.5,
+      borderColor: theme === 'dark' ? '#ffffff' : '#454545',
+    },
+    secondaryBtnTxt: {
+      color: theme === 'dark' ? '#ffffff' : '#454545',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    card: {
+      backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff',
+      borderRadius: 10,
+      padding: 20,
+      marginTop: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    elevatedCard: {
+      shadowColor: theme === 'dark' ? '#ffffff' : '#000',
+      shadowOffset: {width: 0, height: 2},
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    subTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme === 'dark' ? '#ffffff' : '#9a9a9a',
+      marginBottom: 10,
+    },
+    generatePassword: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme === 'dark' ? '#ffffff' : '#333',
+    },
+    generatedPassword: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme === 'dark' ? '#9a9a9a' : '#6f6f6f',
+    },
+  });
