@@ -1,29 +1,24 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
-  StyleSheet,
   FlatList,
   Alert,
   TouchableOpacity,
   RefreshControl,
   Text,
+  StatusBar,
+  Pressable,
 } from 'react-native';
-import {
-  List,
-  FAB,
-  IconButton,
-  Modal,
-  Portal,
-  TextInput,
-  Button,
-} from 'react-native-paper';
+import {FAB, Modal, Portal, TextInput} from 'react-native-paper';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import PasswordContext from '../PasswordContext/PasswordContext';
 import Snackbar from 'react-native-snackbar';
 import PasswordListSearchBar from './Components/PasswordListSearchBar';
 import {ThemeContext} from '../../Theme/ThemeProvider';
+import {getStyles} from './styles';
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Domain is required'),
@@ -41,9 +36,13 @@ const PasswordListScreen = ({navigation}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState({});
+  const [modalPasswordVisible, setModalPasswordVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPasswords, setFilteredPasswords] = useState(passwords);
+
+  const isDark = theme === 'dark';
+  const styles = getStyles(theme);
 
   useEffect(() => {
     setFilteredPasswords(passwords);
@@ -84,6 +83,7 @@ const PasswordListScreen = ({navigation}) => {
   const handleSaveChanges = async values => {
     await editPassword(editId, values.title, values.username, values.password);
     setModalVisible(false);
+    setModalPasswordVisible(false);
   };
 
   const onRefresh = async () => {
@@ -97,10 +97,11 @@ const PasswordListScreen = ({navigation}) => {
     Snackbar.show({
       text: 'Username copied to clipboard',
       duration: Snackbar.LENGTH_SHORT,
-      backgroundColor: theme === 'dark' ? '#121212' : '#ffffff',
+      backgroundColor: isDark ? '#333333' : '#f0f0f0',
+      textColor: isDark ? '#ffffff' : '#000000',
       action: {
         text: 'Close',
-        textColor: '#b2b2b2',
+        textColor: isDark ? '#cccccc' : '#666666',
         onPress: Snackbar.dismiss,
       },
     });
@@ -111,10 +112,11 @@ const PasswordListScreen = ({navigation}) => {
     Snackbar.show({
       text: 'Password copied to clipboard',
       duration: Snackbar.LENGTH_SHORT,
-      backgroundColor: theme === 'dark' ? '#121212' : '#ffffff',
+      backgroundColor: isDark ? '#333333' : '#f0f0f0',
+      textColor: isDark ? '#ffffff' : '#000000',
       action: {
         text: 'Close',
-        textColor: '#b2b2b2',
+        textColor: isDark ? '#cccccc' : '#666666',
         onPress: Snackbar.dismiss,
       },
     });
@@ -142,266 +144,284 @@ const PasswordListScreen = ({navigation}) => {
   };
 
   const renderItem = ({item}) => (
-    <View
-      style={[
-        styles.listItem,
-        {backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff'},
-      ]}>
-      <View style={styles.itemContent}>
-        <List.Icon
-          icon="lock-outline"
-          color={theme === 'dark' ? '#ffffff' : '#000000'}
-        />
-        <View style={styles.textContent}>
-          <Text
-            selectable
-            style={[
-              styles.title,
-              {color: theme === 'dark' ? '#ffffff' : '#000000'},
-            ]}>
-            {item.title}
-          </Text>
-          <View style={styles.usernameRow}>
-            <Text style={styles.boldText}>Username: </Text>
-            <Text
-              selectable={{color: theme === 'dark' ? '#ffffff' : '#000000'}}>
-              {item.username}
-            </Text>
-            <TouchableOpacity onPress={() => copyUsername(item.username)}>
-              <IconButton icon="content-copy" size={17} color="#6200ea" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.passwordRow}>
-            <Text style={styles.boldText}>Password: </Text>
-            <Text
-              selectable={{color: theme === 'dark' ? '#ffffff' : '#000000'}}>
-              {passwordVisible[item.id] ? item.password : '********'}
-            </Text>
-            <TouchableOpacity onPress={() => copyPassword(item.password)}>
-              <IconButton icon="content-copy" size={17} color="#6200ea" />
-            </TouchableOpacity>
-          </View>
+    <View style={styles.listItem}>
+      <View style={styles.itemHeader}>
+        <View style={styles.iconContainer}>
+          <Icon name="lock" size={20} color={isDark ? '#ffffff' : '#000000'} />
+        </View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{item.title}</Text>
+        </View>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={() => togglePasswordVisibility(item.id)}
+            style={styles.actionButton}>
+            <Icon
+              name={passwordVisible[item.id] ? 'visibility' : 'visibility-off'}
+              size={20}
+              color={isDark ? '#ffffff' : '#000000'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleEdit(item.id)}
+            style={styles.actionButton}>
+            <Icon
+              name="edit"
+              size={20}
+              color={isDark ? '#ffffff' : '#000000'}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleDelete(item.id)}
+            style={styles.actionButton}>
+            <Icon name="delete" size={20} color="#ff4444" />
+          </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.actionIcons}>
-        <TouchableOpacity onPress={() => togglePasswordVisibility(item.id)}>
-          <IconButton
-            icon={passwordVisible[item.id] ? 'eye-off' : 'eye'}
+
+      <View style={styles.credentialRow}>
+        <View style={styles.credentialItem}>
+          <Text style={styles.label}>Username</Text>
+          <Text style={styles.credentialText}>{item.username}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => copyUsername(item.username)}
+          style={styles.copyButton}>
+          <Icon
+            name="content-copy"
             size={18}
-            color="#6200ea"
+            color={isDark ? '#cccccc' : '#666666'}
           />
         </TouchableOpacity>
-        <IconButton
-          icon="pencil"
-          size={18}
-          color="#6200ea"
-          onPress={() => handleEdit(item.id)}
-        />
-        <IconButton
-          icon="delete"
-          size={18}
-          color="#e91e63"
-          onPress={() => handleDelete(item.id)}
-        />
       </View>
+
+      <View style={styles.credentialRow}>
+        <View style={styles.credentialItem}>
+          <Text style={styles.label}>Password</Text>
+          <Text style={styles.credentialText}>
+            {passwordVisible[item.id] ? item.password : '••••••••'}
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => copyPassword(item.password)}
+          style={styles.copyButton}>
+          <Icon
+            name="content-copy"
+            size={18}
+            color={isDark ? '#cccccc' : '#666666'}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyState}>
+      <Icon
+        name="security"
+        size={80}
+        color={isDark ? '#333333' : '#cccccc'}
+        style={styles.emptyIcon}
+      />
+      <Text style={styles.emptyTitle}>No Passwords Yet</Text>
+      <Text style={styles.emptySubtitle}>
+        Tap the + button to add your first password
+      </Text>
     </View>
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: theme === 'dark' ? '#121212' : '#f5f5f5'},
-      ]}>
-      <PasswordListSearchBar
-        value={searchQuery}
-        onChangeText={handleSearch}
-        theme={theme}
+    <>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#000000' : '#ffffff'}
       />
-      <FlatList
-        data={filteredPasswords}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={() => navigation.navigate('AddPassword')}
-        color="#ffffff"
-      />
-      <Portal>
-        <Modal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={[
-            styles.modalContent,
-            {backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff'},
-          ]}>
-          <Formik
-            enableReinitialize
-            initialValues={{title, username, password}}
-            validationSchema={validationSchema}
-            onSubmit={handleSaveChanges}>
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <View>
-                <TextInput
-                  label="Domain"
-                  value={values.title}
-                  onChangeText={handleChange('title')}
-                  onBlur={handleBlur('title')}
-                  style={styles.input}
-                  theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
-                />
-                {touched.title && errors.title && (
-                  <Text style={styles.errorText}>{errors.title}</Text>
-                )}
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Credentials Manager</Text>
+          <Text style={styles.headerSubtitle}>
+            {filteredPasswords.length} password
+            {filteredPasswords.length !== 1 ? 's' : ''}
+          </Text>
+        </View>
 
-                <TextInput
-                  label="Username"
-                  value={values.username}
-                  onChangeText={handleChange('username')}
-                  onBlur={handleBlur('username')}
-                  style={styles.input}
-                  theme={{colors: {primary: '#121212', background: '#F3F4F9'}}}
-                />
-                {touched.username && errors.username && (
-                  <Text style={styles.errorText}>{errors.username}</Text>
-                )}
+        <PasswordListSearchBar
+          value={searchQuery}
+          onChangeText={handleSearch}
+          theme={theme}
+        />
 
-                <View style={styles.passwordContainer}>
-                  <TextInput
-                    label="Password"
-                    value={values.password}
-                    onChangeText={handleChange('password')}
-                    onBlur={handleBlur('password')}
-                    secureTextEntry={!passwordVisible}
-                    style={[styles.input, {flex: 1}]}
-                    theme={{
-                      colors: {primary: '#121212', background: '#F3F4F9'},
-                    }}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                    style={styles.visibilityIcon}>
-                    <IconButton
-                      icon={passwordVisible ? 'eye' : 'eye-off'}
-                      size={20}
-                      color="#6200ea"
+        <FlatList
+          data={filteredPasswords}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={isDark ? '#ffffff' : '#000000'}
+              colors={[isDark ? '#ffffff' : '#000000']}
+            />
+          }
+          ListEmptyComponent={renderEmptyState}
+          contentContainerStyle={
+            filteredPasswords.length === 0 ? styles.emptyContainer : null
+          }
+          showsVerticalScrollIndicator={false}
+        />
+
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => navigation.navigate('AddPassword')}
+          color={isDark ? '#000000' : '#ffffff'}
+        />
+
+        <Portal>
+          <Modal
+            visible={modalVisible}
+            onDismiss={() => {
+              setModalVisible(false);
+              setModalPasswordVisible(false);
+            }}
+            contentContainerStyle={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Credentials</Text>
+            </View>
+
+            <Formik
+              enableReinitialize
+              initialValues={{title, username, password}}
+              validationSchema={validationSchema}
+              onSubmit={handleSaveChanges}>
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <View style={styles.modalForm}>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      label="Domain"
+                      value={values.title}
+                      onChangeText={handleChange('title')}
+                      onBlur={handleBlur('title')}
+                      style={styles.input}
+                      mode="outlined"
+                      outlineColor={isDark ? '#333333' : '#e0e0e0'}
+                      activeOutlineColor={isDark ? '#ffffff' : '#000000'}
+                      textColor={isDark ? '#ffffff' : '#000000'}
+                      theme={{
+                        colors: {
+                          onSurfaceVariant: isDark ? '#cccccc' : '#666666',
+                          background: 'transparent',
+                        },
+                      }}
                     />
-                  </TouchableOpacity>
-                </View>
-                {touched.password && errors.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
-                )}
+                    {touched.title && errors.title && (
+                      <Text style={styles.errorText}>{errors.title}</Text>
+                    )}
+                  </View>
 
-                <Button
-                  mode="contained"
-                  onPress={handleSubmit}
-                  style={styles.saveButton}
-                  labelStyle={styles.saveButtonText}>
-                  Save Changes
-                </Button>
-              </View>
-            )}
-          </Formik>
-        </Modal>
-      </Portal>
-    </View>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      label="Username"
+                      value={values.username}
+                      onChangeText={handleChange('username')}
+                      onBlur={handleBlur('username')}
+                      style={styles.input}
+                      mode="outlined"
+                      outlineColor={isDark ? '#333333' : '#e0e0e0'}
+                      activeOutlineColor={isDark ? '#ffffff' : '#000000'}
+                      textColor={isDark ? '#ffffff' : '#000000'}
+                      theme={{
+                        colors: {
+                          onSurfaceVariant: isDark ? '#cccccc' : '#666666',
+                          background: 'transparent',
+                        },
+                      }}
+                    />
+                    {touched.username && errors.username && (
+                      <Text style={styles.errorText}>{errors.username}</Text>
+                    )}
+                  </View>
+
+                  <View style={styles.inputContainer}>
+                    <View style={styles.passwordInputContainer}>
+                      <TextInput
+                        label="Password"
+                        value={values.password}
+                        onChangeText={handleChange('password')}
+                        onBlur={handleBlur('password')}
+                        secureTextEntry={!modalPasswordVisible}
+                        style={[styles.input, styles.passwordInput]}
+                        mode="outlined"
+                        outlineColor={isDark ? '#333333' : '#e0e0e0'}
+                        activeOutlineColor={isDark ? '#ffffff' : '#000000'}
+                        textColor={isDark ? '#ffffff' : '#000000'}
+                        theme={{
+                          colors: {
+                            onSurfaceVariant: isDark ? '#cccccc' : '#666666',
+                            background: 'transparent',
+                          },
+                        }}
+                      />
+                      <TouchableOpacity
+                        onPress={() =>
+                          setModalPasswordVisible(!modalPasswordVisible)
+                        }
+                        style={styles.passwordToggle}>
+                        <Icon
+                          name={
+                            modalPasswordVisible
+                              ? 'visibility'
+                              : 'visibility-off'
+                          }
+                          size={20}
+                          color={isDark ? '#ffffff' : '#000000'}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    {touched.password && errors.password && (
+                      <Text style={styles.errorText}>{errors.password}</Text>
+                    )}
+                  </View>
+
+                  <View style={styles.modalButtons}>
+                    <Pressable
+                      onPress={() => {
+                        setModalVisible(false);
+                        setModalPasswordVisible(false);
+                      }}
+                      style={[styles.modalButton, styles.cancelButton]}
+                      android_ripple={{
+                        color: isDark ? '#333333' : '#f0f0f0',
+                        borderless: false,
+                      }}>
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={handleSubmit}
+                      style={[styles.modalButton, styles.saveButton]}
+                      android_ripple={{
+                        color: isDark ? '#333333' : '#f0f0f0',
+                        borderless: false,
+                      }}>
+                      <Text style={styles.saveButtonText}>Save Changes</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            </Formik>
+          </Modal>
+        </Portal>
+      </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    marginVertical: 5,
-    borderRadius: 5,
-    elevation: 2,
-  },
-  itemContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  textContent: {
-    marginLeft: 10,
-    flex: 1,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  usernameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-  },
-  boldText: {
-    fontWeight: 'bold',
-  },
-  passwordRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-  },
-  actionIcons: {
-    flexDirection: 'row',
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#6200ee',
-  },
-  modalContent: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    margin: 20,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  input: {
-    marginBottom: 10,
-    backgroundColor: '#F3F4F9',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 5,
-    marginLeft: 10,
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  visibilityIcon: {
-    position: 'absolute',
-    right: 10,
-  },
-  saveButton: {
-    marginTop: 10,
-    backgroundColor: '#6200ee',
-  },
-  saveButtonText: {
-    color: '#ffffff',
-  },
-});
 
 export default PasswordListScreen;

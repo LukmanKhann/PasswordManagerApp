@@ -1,19 +1,28 @@
-import React, {createContext, useEffect, useState} from 'react';
+import React, {createContext, useEffect, useState, useContext} from 'react';
 import firestore from '@react-native-firebase/firestore';
+import { AuthContext } from '../../Auth/AuthContext';
 
 const PasswordContext = createContext();
 
 export const PasswordProvider = ({children}) => {
   const [passwords, setPasswords] = useState([]);
+  const {user} = useContext(AuthContext);
 
   useEffect(() => {
-    loadPasswords();
-  }, []);
+    if (user) {
+      loadPasswords();
+    } else {
+      setPasswords([]); 
+    }
+  }, [user]);
 
   const loadPasswords = async () => {
+    if (!user) return;
+    
     try {
       const passwordCollection = await firestore()
         .collection('passwords')
+        .where('userId', '==', user.uid)
         .get();
       const passwordsFromFirestore = passwordCollection.docs.map(doc => ({
         id: doc.id,
@@ -26,8 +35,16 @@ export const PasswordProvider = ({children}) => {
   };
 
   const addPassword = async (title, username, password) => {
+    if (!user) return;
+    
     try {
-      const newPassword = {title, username, password};
+      const newPassword = {
+        title, 
+        username, 
+        password,
+        userId: user.uid,
+        createdAt: firestore.FieldValue.serverTimestamp()
+      };
       const newDocRef = await firestore()
         .collection('passwords')
         .add(newPassword);
@@ -41,12 +58,19 @@ export const PasswordProvider = ({children}) => {
   };
 
   const editPassword = async (id, title, username, password) => {
+    if (!user) return;
+    
     try {
-      const updatedPassword = {title, username, password};
+      const updatedPassword = {
+        title, 
+        username, 
+        password,
+        updatedAt: firestore.FieldValue.serverTimestamp()
+      };
       await firestore().collection('passwords').doc(id).update(updatedPassword);
       setPasswords(prevPasswords =>
         prevPasswords.map(item =>
-          item.id === id ? {id, ...updatedPassword} : item,
+          item.id === id ? {id, ...updatedPassword, userId: user.uid} : item,
         ),
       );
     } catch (error) {
@@ -55,6 +79,8 @@ export const PasswordProvider = ({children}) => {
   };
 
   const deletePassword = async id => {
+    if (!user) return;
+    
     try {
       await firestore().collection('passwords').doc(id).delete();
       setPasswords(prevPasswords =>
