@@ -5,7 +5,6 @@ import {Formik} from 'formik';
 import {
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,6 +16,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Snackbar from 'react-native-snackbar';
 import {ThemeContext} from '../../Theme/ThemeProvider';
+import {getStyles} from './styles';
 
 const passwordSchema = Yup.object().shape({
   passwordLength: Yup.number()
@@ -211,10 +211,14 @@ const PasswordGenerator = () => {
                   </View>
 
                   {/* Character Options */}
+                  {/* Character Options */}
                   <View style={styles.optionsSection}>
                     <Text style={styles.sectionTitle}>Character Types</Text>
 
-                    <View style={styles.optionItem}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => setLowerCase(!lowerCase)}
+                      activeOpacity={0.7}>
                       <View style={styles.optionLabel}>
                         <Icon
                           name="text-fields"
@@ -223,20 +227,25 @@ const PasswordGenerator = () => {
                         />
                         <Text style={styles.optionText}>Lowercase Letters</Text>
                       </View>
-                      <BouncyCheckbox
-                        size={20}
-                        fillColor={isDark ? '#ffffff' : '#000000'}
-                        unfillColor="transparent"
-                        iconStyle={{
-                          borderColor: isDark ? '#ffffff' : '#000000',
-                        }}
-                        disableBuiltInState
-                        isChecked={lowerCase}
-                        onPress={() => setLowerCase(!lowerCase)}
-                      />
-                    </View>
+                      <View style={styles.checkboxContainer}>
+                        <BouncyCheckbox
+                          size={20}
+                          fillColor={isDark ? '#ffffff' : '#000000'}
+                          unfillColor="transparent"
+                          iconStyle={{
+                            borderColor: isDark ? '#ffffff' : '#000000',
+                          }}
+                          disableBuiltInState
+                          isChecked={lowerCase}
+                          onPress={() => setLowerCase(!lowerCase)}
+                        />
+                      </View>
+                    </TouchableOpacity>
 
-                    <View style={styles.optionItem}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => setUpperCase(!upperCase)}
+                      activeOpacity={0.7}>
                       <View style={styles.optionLabel}>
                         <Icon
                           name="format-size"
@@ -245,20 +254,25 @@ const PasswordGenerator = () => {
                         />
                         <Text style={styles.optionText}>Uppercase Letters</Text>
                       </View>
-                      <BouncyCheckbox
-                        size={20}
-                        fillColor={isDark ? '#ffffff' : '#000000'}
-                        unfillColor="transparent"
-                        iconStyle={{
-                          borderColor: isDark ? '#ffffff' : '#000000',
-                        }}
-                        disableBuiltInState
-                        isChecked={upperCase}
-                        onPress={() => setUpperCase(!upperCase)}
-                      />
-                    </View>
+                      <View style={styles.checkboxContainer}>
+                        <BouncyCheckbox
+                          size={20}
+                          fillColor={isDark ? '#ffffff' : '#000000'}
+                          unfillColor="transparent"
+                          iconStyle={{
+                            borderColor: isDark ? '#ffffff' : '#000000',
+                          }}
+                          disableBuiltInState
+                          isChecked={upperCase}
+                          onPress={() => setUpperCase(!upperCase)}
+                        />
+                      </View>
+                    </TouchableOpacity>
 
-                    <View style={styles.optionItem}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => setNumbers(!numbers)}
+                      activeOpacity={0.7}>
                       <View style={styles.optionLabel}>
                         <Icon
                           name="tag"
@@ -267,23 +281,28 @@ const PasswordGenerator = () => {
                         />
                         <Text style={styles.optionText}>Numbers</Text>
                       </View>
-                      <BouncyCheckbox
-                        size={20}
-                        fillColor={isDark ? '#ffffff' : '#000000'}
-                        unfillColor="transparent"
-                        iconStyle={{
-                          borderColor: isDark ? '#ffffff' : '#000000',
-                        }}
-                        disableBuiltInState
-                        isChecked={numbers}
-                        onPress={() => setNumbers(!numbers)}
-                      />
-                    </View>
+                      <View style={styles.checkboxContainer}>
+                        <BouncyCheckbox
+                          size={20}
+                          fillColor={isDark ? '#ffffff' : '#000000'}
+                          unfillColor="transparent"
+                          iconStyle={{
+                            borderColor: isDark ? '#ffffff' : '#000000',
+                          }}
+                          disableBuiltInState
+                          isChecked={numbers}
+                          onPress={() => setNumbers(!numbers)}
+                        />
+                      </View>
+                    </TouchableOpacity>
 
-                    <View style={styles.optionItem}>
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={() => setSymbols(!symbols)}
+                      activeOpacity={0.7}>
                       <View style={styles.optionLabel}>
                         <Icon
-                          name="special-character"
+                          name="code"
                           size={20}
                           color={isDark ? '#ffffff' : '#000000'}
                         />
@@ -291,19 +310,20 @@ const PasswordGenerator = () => {
                           Special Characters
                         </Text>
                       </View>
-                      <BouncyCheckbox
-                        size={20}
-                        fillColor={isDark ? '#ffffff' : '#000000'}
-                        unfillColor="transparent"
-                        iconStyle={{
-                          borderColor: isDark ? '#ffffff' : '#000000',
-                        }}
-                        disableBuiltInState
-                        isChecked={symbols}
-                        onPress={() => setSymbols(!symbols)}
-                        style={styles.bouncyCheckBox}
-                      />
-                    </View>
+                      <View style={styles.checkboxContainer}>
+                        <BouncyCheckbox
+                          size={20}
+                          fillColor={isDark ? '#ffffff' : '#000000'}
+                          unfillColor="transparent"
+                          iconStyle={{
+                            borderColor: isDark ? '#ffffff' : '#000000',
+                          }}
+                          disableBuiltInState
+                          isChecked={symbols}
+                          onPress={() => setSymbols(!symbols)}
+                        />
+                      </View>
+                    </TouchableOpacity>
                   </View>
 
                   {/* Action Buttons */}
@@ -401,222 +421,5 @@ const PasswordGenerator = () => {
     </>
   );
 };
-
-const getStyles = isDark =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#000000' : '#ffffff',
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 24,
-      paddingTop: 16,
-      paddingBottom: 24,
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: '700',
-      color: isDark ? '#ffffff' : '#000000',
-      letterSpacing: -0.5,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: isDark ? '#888888' : '#666666',
-      marginTop: 4,
-    },
-    themeToggle: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: isDark ? '#1a1a1a' : '#f5f5f5',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: isDark ? '#333333' : '#e0e0e0',
-    },
-    formContainer: {
-      paddingHorizontal: 24,
-    },
-    inputSection: {
-      marginBottom: 32,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: isDark ? '#ffffff' : '#000000',
-      marginBottom: 16,
-      letterSpacing: -0.3,
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: 2,
-      borderColor: isDark ? '#333333' : '#e0e0e0',
-      borderRadius: 12,
-      backgroundColor: isDark ? '#1a1a1a' : '#f8f8f8',
-      paddingHorizontal: 16,
-      height: 56,
-    },
-    bouncyCheckBox: {
-      marginBottom: 8,
-    },
-    inputIcon: {
-      marginRight: 12,
-    },
-    textInput: {
-      flex: 1,
-      fontSize: 16,
-      color: isDark ? '#ffffff' : '#000000',
-      fontWeight: '500',
-    },
-    errorContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    errorText: {
-      fontSize: 14,
-      color: '#ff4444',
-      marginLeft: 6,
-      fontWeight: '500',
-    },
-    optionsSection: {
-      marginBottom: 32,
-    },
-    optionItem: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      borderRadius: 12,
-      backgroundColor: isDark ? '#1a1a1a' : '#f8f8f8',
-      marginBottom: 12,
-      borderWidth: 1,
-      borderColor: isDark ? '#333333' : '#e0e0e0',
-    },
-    optionLabel: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      // flex: 1,
-    },
-    optionText: {
-      fontSize: 16,
-      color: isDark ? '#ffffff' : '#000000',
-      marginLeft: 12,
-      fontWeight: '500',
-    },
-    actionButtons: {
-      gap: 16,
-      marginBottom: 32,
-    },
-    primaryButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: isDark ? '#ffffff' : '#000000',
-      paddingVertical: 16,
-      borderRadius: 12,
-      gap: 8,
-    },
-    primaryButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: isDark ? '#000000' : '#ffffff',
-      letterSpacing: -0.2,
-    },
-    disabledButton: {
-      backgroundColor: isDark ? '#333333' : '#e0e0e0',
-    },
-    disabledButtonText: {
-      color: '#666666',
-    },
-    secondaryButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'transparent',
-      paddingVertical: 16,
-      borderRadius: 12,
-      borderWidth: 2,
-      borderColor: isDark ? '#ffffff' : '#000000',
-      gap: 8,
-    },
-    secondaryButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: isDark ? '#ffffff' : '#000000',
-      letterSpacing: -0.2,
-    },
-    passwordCard: {
-      backgroundColor: isDark ? '#1a1a1a' : '#f8f8f8',
-      borderRadius: 16,
-      padding: 24,
-      borderWidth: 1,
-      borderColor: isDark ? '#333333' : '#e0e0e0',
-    },
-    passwordHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    passwordTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: isDark ? '#ffffff' : '#000000',
-    },
-    strengthBadge: {
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-      borderRadius: 12,
-    },
-    strengthText: {
-      fontSize: 12,
-      fontWeight: '600',
-      color: '#ffffff',
-      textTransform: 'uppercase',
-    },
-    passwordContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#000000' : '#ffffff',
-      borderRadius: 12,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: isDark ? '#333333' : '#e0e0e0',
-      marginBottom: 16,
-    },
-    passwordText: {
-      flex: 1,
-      fontSize: 16,
-      fontFamily: 'monospace',
-      color: isDark ? '#ffffff' : '#000000',
-      fontWeight: '600',
-      letterSpacing: 0.5,
-    },
-    copyButton: {
-      marginLeft: 12,
-      padding: 8,
-      borderRadius: 8,
-      backgroundColor: isDark ? '#333333' : '#f0f0f0',
-    },
-    passwordInfo: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
-    infoItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    infoText: {
-      fontSize: 14,
-      color: isDark ? '#888888' : '#666666',
-      marginLeft: 6,
-      fontWeight: '500',
-    },
-  });
 
 export default PasswordGenerator;
