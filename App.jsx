@@ -2,7 +2,7 @@ import {StyleSheet} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AppNavigator from './src/Navigations/AppNavigator';
 import {PaperProvider} from 'react-native-paper';
-import {PasswordProvider} from './src/screens/PasswordContext/PasswordContext';
+import {PasswordProvider} from './src/context/PasswordContext/PasswordContext';
 import LoadingScreen from './src/components/LoadingScreen/LoadingScreen';
 import {AuthProvider} from './src/Auth/AuthContext';
 import { ThemeProvider } from './src/Theme/ThemeProvider';

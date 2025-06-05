@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -10,17 +10,17 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {signInWithEmailAndPassword} from 'firebase/auth';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ThemeContext } from '../Theme/ThemeProvider';
-import { FIREBASE_AUTH } from '../Firebase/FirebaseConfig';
+import {ThemeContext} from '../../Theme/ThemeProvider';
+import {FIREBASE_AUTH} from '../../Firebase/FirebaseConfig';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { theme } = useContext(ThemeContext);
+  const {theme} = useContext(ThemeContext);
 
   const isDark = theme === 'dark';
 
