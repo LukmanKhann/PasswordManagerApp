@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -14,16 +14,20 @@ const PasswordItem = ({
   onDelete,
   onCopyUsername,
   onCopyPassword,
-  onToggleFavorite,
 }) => {
+  const [titleExpanded, setTitleExpanded] = useState(false);
+  const [usernameExpanded, setUsernameExpanded] = useState(false);
+
   const getDomainColor = domain => {
     const colors = [
-      '#ff4757',
-      '#5352ed',
-      '#2ed573',
-      '#ffa502',
-      '#747d8c',
-      '#a4b0be',
+      '#6366f1',
+      '#10b981',
+      '#f59e0b',
+      '#ef4444',
+      '#8b5cf6',
+      '#06b6d4',
+      '#84cc16',
+      '#f97316',
     ];
     const index = domain ? domain.length % colors.length : 0;
     return colors[index];
@@ -41,146 +45,158 @@ const PasswordItem = ({
     return updated.toLocaleDateString();
   };
 
+  const truncateText = (text, maxLength) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   const renderGridItem = () => (
     <View style={styles.passwordCard}>
+      {/* Header Section */}
+      <View
+        style={[
+          styles.domainIcon,
+          {backgroundColor: getDomainColor(item.title)},
+        ]}>
+        <Text style={styles.domainIconText}>
+          {item.title?.charAt(0)?.toUpperCase() || 'U'}
+        </Text>
+      </View>
       <View style={styles.cardHeader}>
-        <View style={styles.cardIconContainer}>
-          <View
-            style={[
-              styles.domainIcon,
-              {backgroundColor: getDomainColor(item.title)},
-            ]}>
-            <Text style={styles.domainIconText}>
-              {item.title?.charAt(0)?.toUpperCase() || 'U'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.cardContent}>
-          <View style={styles.titleRow}>
+        {/* Content Section next to domain icon */}
+        <View style={styles.cardContentInHeader}>
+          <TouchableOpacity
+            onPress={() => setTitleExpanded(!titleExpanded)}
+            activeOpacity={0.7}>
             <Text
               style={[
                 styles.cardTitle,
-                {color: isDark ? '#ffffff' : '#000000'},
+                {color: isDark ? '#ffffff' : '#1f2937'},
               ]}
-              numberOfLines={1}>
-              {item.title || 'Untitled'}
+              numberOfLines={titleExpanded ? 0 : 1}>
+              {titleExpanded
+                ? item.title || 'Untitled'
+                : truncateText(item.title || 'Untitled', 30)}
             </Text>
-            <TouchableOpacity
-              onPress={() => onToggleFavorite(item.id)}
-              style={styles.favoriteButton}>
-              <Icon
-                name={item.isFavorite ? 'favorite' : 'favorite-border'}
-                size={18}
-                color={
-                  item.isFavorite ? '#ff4757' : isDark ? '#666666' : '#cccccc'
-                }
-              />
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
 
-          <Text
-            style={[
-              styles.cardUsername,
-              {color: isDark ? '#cccccc' : '#666666'},
-            ]}
-            numberOfLines={1}>
-            {item.username || 'No username'}
-          </Text>
+          <TouchableOpacity
+            onPress={() => setUsernameExpanded(!usernameExpanded)}
+            activeOpacity={0.7}>
+            <Text
+              style={[
+                styles.cardUsername,
+                {color: isDark ? '#9ca3af' : '#6b7280'},
+              ]}
+              numberOfLines={usernameExpanded ? 0 : 1}>
+              {usernameExpanded
+                ? item.username || 'No username'
+                : truncateText(item.username || 'No username', 30)}
+            </Text>
+          </TouchableOpacity>
 
-          <View style={styles.cardLabels}>
-            {item.category && (
+          {item.category && (
+            <View style={styles.cardLabels}>
               <View
                 style={[
                   styles.labelChip,
-                  {backgroundColor: isDark ? '#333333' : '#f0f0f0'},
+                  {backgroundColor: isDark ? '#374151' : '#f3f4f6'},
                 ]}>
                 <Text
                   style={[
                     styles.labelText,
-                    {color: isDark ? '#cccccc' : '#666666'},
+                    {color: isDark ? '#d1d5db' : '#4b5563'},
                   ]}>
                   {item.category}
                 </Text>
               </View>
-            )}
-            {item.lastUpdated && (
-              <Text
-                style={[
-                  styles.lastUpdated,
-                  {color: isDark ? '#666666' : '#999999'},
-                ]}>
-                {formatLastUpdated(item.lastUpdated)}
-              </Text>
-            )}
-          </View>
+            </View>
+          )}
+        </View>
+
+        {/* Vertical Action Buttons */}
+        <View style={styles.gridActionButtons}>
+          <TouchableOpacity
+            onPress={() => onTogglePasswordVisibility(item.id)}
+            style={[styles.gridActionBtn, styles.primaryAction]}
+            disabled={loading}>
+            <Icon
+              name={passwordVisible[item.id] ? 'visibility-off' : 'visibility'}
+              size={16}
+              color={'#ffffff'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => onCopyUsername(item.username)}
+            style={[styles.gridActionBtn, styles.secondaryAction]}
+            disabled={loading || !item.username}>
+            <Icon
+              name="content-copy"
+              size={16}
+              color={
+                !item.username ? '#9ca3af' : isDark ? '#d1d5db' : '#4b5563'
+              }
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => onCopyPassword(item.password)}
+            style={[styles.gridActionBtn, styles.secondaryAction]}
+            disabled={loading || !item.password}>
+            <Icon
+              name="vpn-key"
+              size={16}
+              color={
+                !item.password ? '#9ca3af' : isDark ? '#d1d5db' : '#4b5563'
+              }
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => onEdit(item.id)}
+            style={[styles.gridActionBtn, styles.secondaryAction]}
+            disabled={loading}>
+            <Icon
+              name="edit"
+              size={16}
+              color={isDark ? '#d1d5db' : '#4b5563'}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => onDelete(item.id)}
+            style={[styles.gridActionBtn, styles.deleteAction]}
+            disabled={loading}>
+            <Icon name="delete" size={16} color="#ef4444" />
+          </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.cardActions}>
-        <TouchableOpacity
-          onPress={() => onTogglePasswordVisibility(item.id)}
-          style={styles.actionBtn}
-          disabled={loading}>
-          <Icon
-            name={passwordVisible[item.id] ? 'visibility' : 'visibility-off'}
-            size={20}
-            color={isDark ? '#ffffff' : '#000000'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onCopyUsername(item.username)}
-          style={styles.actionBtn}
-          disabled={loading || !item.username}>
-          <Icon
-            name="content-copy"
-            size={20}
-            color={!item.username ? '#999999' : isDark ? '#ffffff' : '#000000'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onCopyPassword(item.password)}
-          style={styles.actionBtn}
-          disabled={loading || !item.password}>
-          <Icon
-            name="vpn-key"
-            size={20}
-            color={!item.password ? '#999999' : isDark ? '#ffffff' : '#000000'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onEdit(item.id)}
-          style={styles.actionBtn}
-          disabled={loading}>
-          <Icon name="edit" size={20} color={isDark ? '#ffffff' : '#000000'} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onDelete(item.id)}
-          style={[styles.actionBtn, styles.deleteBtn]}
-          disabled={loading}>
-          <Icon name="delete" size={20} color="#ff4757" />
-        </TouchableOpacity>
-      </View>
-
+      {/* Password Reveal */}
       {passwordVisible[item.id] && (
         <View style={styles.passwordReveal}>
           <Text
             style={[
               styles.revealedPassword,
-              {color: isDark ? '#ffffff' : '#000000'},
+              {color: isDark ? '#ffffff' : '#1f2937'},
             ]}>
             {item.password || 'No password'}
           </Text>
         </View>
       )}
+
+      {/* Last Updated */}
+      {item.lastUpdated && (
+        <Text
+          style={[styles.lastUpdated, {color: isDark ? '#6b7280' : '#9ca3af'}]}>
+          Updated {formatLastUpdated(item.lastUpdated)}
+        </Text>
+      )}
     </View>
   );
 
-  // List View Render
   const renderListItem = () => (
     <View style={styles.passwordListItem}>
       <View style={styles.listItemLeft}>
@@ -196,14 +212,21 @@ const PasswordItem = ({
 
         <View style={styles.listItemContent}>
           <View style={styles.listTitleRow}>
-            <Text
-              style={[
-                styles.listTitle,
-                {color: isDark ? '#ffffff' : '#000000'},
-              ]}
-              numberOfLines={1}>
-              {item.title || 'Untitled'}
-            </Text>
+            <TouchableOpacity
+              onPress={() => setTitleExpanded(!titleExpanded)}
+              activeOpacity={0.7}
+              style={{flex: 1}}>
+              <Text
+                style={[
+                  styles.listTitle,
+                  {color: isDark ? '#ffffff' : '#1f2937'},
+                ]}
+                numberOfLines={titleExpanded ? 0 : 1}>
+                {titleExpanded
+                  ? item.title || 'Untitled'
+                  : truncateText(item.title || 'Untitled', 30)}
+              </Text>
+            </TouchableOpacity>
             {item.isFavorite && (
               <Icon
                 name="favorite"
@@ -213,56 +236,71 @@ const PasswordItem = ({
               />
             )}
           </View>
-          <Text
-            style={[
-              styles.listUsername,
-              {color: isDark ? '#cccccc' : '#666666'},
-            ]}
-            numberOfLines={1}>
-            {item.username || 'No username'}
-          </Text>
-          {item.category && (
+
+          <TouchableOpacity
+            onPress={() => setUsernameExpanded(!usernameExpanded)}
+            activeOpacity={0.7}>
             <Text
               style={[
-                styles.listCategory,
-                {color: isDark ? '#666666' : '#999999'},
-              ]}>
-              {item.category}
+                styles.listUsername,
+                {color: isDark ? '#9ca3af' : '#6b7280'},
+              ]}
+              numberOfLines={usernameExpanded ? 0 : 1}>
+              {usernameExpanded
+                ? item.username || 'No username'
+                : truncateText(item.username || 'No username', 30)}
             </Text>
-          )}
+          </TouchableOpacity>
+
+          <View style={styles.listMetadata}>
+            {item.category && (
+              <View
+                style={[
+                  styles.listLabelChip,
+                  {backgroundColor: isDark ? '#374151' : '#f3f4f6'},
+                ]}>
+                <Text
+                  style={[
+                    styles.listLabelText,
+                    {color: isDark ? '#d1d5db' : '#4b5563'},
+                  ]}>
+                  {item.category}
+                </Text>
+              </View>
+            )}
+            {item.lastUpdated && (
+              <Text
+                style={[
+                  styles.listLastUpdated,
+                  {color: isDark ? '#6b7280' : '#9ca3af'},
+                ]}>
+                {formatLastUpdated(item.lastUpdated)}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
 
       <View style={styles.listItemActions}>
         <TouchableOpacity
-          onPress={() => onToggleFavorite(item.id)}
-          style={styles.listActionBtn}>
+          onPress={() => onTogglePasswordVisibility(item.id)}
+          style={[styles.listActionBtn, styles.primaryListAction]}
+          disabled={loading}>
           <Icon
-            name={item.isFavorite ? 'favorite' : 'favorite-border'}
+            name={passwordVisible[item.id] ? 'visibility-off' : 'visibility'}
             size={18}
-            color={item.isFavorite ? '#ff4757' : isDark ? '#666666' : '#cccccc'}
+            color="#ffffff"
           />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => onCopyUsername(item.username)}
-          style={styles.listActionBtn}
+          style={[styles.listActionBtn]}
           disabled={loading || !item.username}>
           <Icon
             name="content-copy"
             size={18}
-            color={!item.username ? '#999999' : isDark ? '#ffffff' : '#000000'}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => onCopyPassword(item.password)}
-          style={styles.listActionBtn}
-          disabled={loading || !item.password}>
-          <Icon
-            name="vpn-key"
-            size={18}
-            color={!item.password ? '#999999' : isDark ? '#ffffff' : '#000000'}
+            color={!item.username ? '#9ca3af' : isDark ? '#d1d5db' : '#4b5563'}
           />
         </TouchableOpacity>
 
@@ -270,16 +308,35 @@ const PasswordItem = ({
           onPress={() => onEdit(item.id)}
           style={styles.listActionBtn}
           disabled={loading}>
-          <Icon name="edit" size={18} color={isDark ? '#ffffff' : '#000000'} />
+          <Icon name="edit" size={18} color={isDark ? '#d1d5db' : '#4b5563'} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => onCopyPassword(item.password)}
+          style={[styles.listActionBtn]}
+          disabled={loading || !item.password}>
+          <Icon
+            name="vpn-key"
+            size={18}
+            color={!item.password ? '#9ca3af' : isDark ? '#d1d5db' : '#4b5563'}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => onDelete(item.id)}
+          style={[styles.listActionBtn, styles.deleteListAction]}
+          disabled={loading}>
+          <Icon name="delete" size={18} color="#ef4444" />
         </TouchableOpacity>
       </View>
 
+      {/* Password Reveal for List */}
       {passwordVisible[item.id] && (
         <View style={styles.listPasswordReveal}>
           <Text
             style={[
               styles.listRevealedPassword,
-              {color: isDark ? '#ffffff' : '#000000'},
+              {color: isDark ? '#ffffff' : '#1f2937'},
             ]}>
             {item.password || 'No password'}
           </Text>

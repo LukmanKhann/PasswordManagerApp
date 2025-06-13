@@ -68,7 +68,7 @@ export const PasswordProvider = ({children}) => {
             password: decryptData(passwordData.password),
             createdAt: handleFirebaseTimestamp(passwordData.createdAt),
             updatedAt: handleFirebaseTimestamp(passwordData.updatedAt),
-            catagory: passwordData.category || 'General',
+            category: passwordData.category || 'General',
           };
         });
         setPasswords(passwordsArray);
@@ -84,7 +84,7 @@ export const PasswordProvider = ({children}) => {
     title,
     username,
     password,
-    catagory,
+    category,
   ) => {
     if (!user) return;
 
@@ -98,7 +98,7 @@ export const PasswordProvider = ({children}) => {
         password: encryptData(password),
         createdAt: getCurrentFormattedDate(),
         updatedAt: getCurrentFormattedDate(),
-        category: catagory || 'General',
+        category: category || 'General',
       };
 
       await newPasswordRef.set(newPassword);
@@ -112,7 +112,7 @@ export const PasswordProvider = ({children}) => {
           password,
           createdAt: getCurrentFormattedDate(),
           updatedAt: getCurrentFormattedDate(),
-          category: catagory || 'General',
+          category: category || 'General',
         },
       ]);
     } catch (error) {
@@ -125,7 +125,7 @@ export const PasswordProvider = ({children}) => {
     title,
     username,
     password,
-    catagory,
+    category,
   ) => {
     if (!user) return;
 
@@ -137,7 +137,7 @@ export const PasswordProvider = ({children}) => {
         username: encryptData(username),
         password: encryptData(password),
         updatedAt: getCurrentFormattedDate(),
-        category: catagory || 'General',
+        category: category || 'General',
       };
 
       await passwordRef.update(updatedPassword);
@@ -151,7 +151,7 @@ export const PasswordProvider = ({children}) => {
                 username,
                 password,
                 updatedAt: getCurrentFormattedDate(),
-                category: catagory || 'General',
+                category: category || 'General',
               }
             : item,
         ),
