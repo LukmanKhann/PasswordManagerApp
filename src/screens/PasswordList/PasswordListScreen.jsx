@@ -22,6 +22,7 @@ const PasswordListScreen = ({navigation}) => {
     title,
     username,
     password,
+    category,
     isDark,
     styles,
 
@@ -198,6 +199,7 @@ const PasswordListScreen = ({navigation}) => {
           title={title}
           username={username}
           password={password}
+          category={category}
           passwordVisible={modalPasswordVisible}
           onTogglePasswordVisibility={setModalPasswordVisible}
           isDark={isDark}

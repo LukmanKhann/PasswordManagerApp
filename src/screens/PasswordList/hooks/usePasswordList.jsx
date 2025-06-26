@@ -16,6 +16,7 @@ export const usePasswordList = () => {
   const [title, setTitle] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [category, setCategory] = useState('');
   const [modalPasswordVisible, setModalPasswordVisible] = useState(false);
 
   const [passwordVisible, setPasswordVisible] = useState({});
@@ -32,7 +33,8 @@ export const usePasswordList = () => {
       const filtered = passwords.filter(
         item =>
           item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.username?.toLowerCase().includes(searchQuery.toLowerCase()),
+          item.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.category?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
       setFilteredPasswords(filtered);
     } else {
@@ -74,6 +76,7 @@ export const usePasswordList = () => {
         setTitle(passwordToEdit.title || '');
         setUsername(passwordToEdit.username || '');
         setPassword(passwordToEdit.password || '');
+        setCategory(passwordToEdit.category || 'others');
         setModalVisible(true);
       }
     },
@@ -122,6 +125,7 @@ export const usePasswordList = () => {
           values.title,
           values.username,
           values.password,
+          values.category,
         );
         setModalVisible(false);
         setModalPasswordVisible(false);
@@ -132,6 +136,7 @@ export const usePasswordList = () => {
         setTitle('');
         setUsername('');
         setPassword('');
+        setCategory('');
       } catch (error) {
         console.error('Save error:', error);
         showSnackbar('Failed to update password', 'error');
@@ -198,6 +203,7 @@ export const usePasswordList = () => {
     setTitle('');
     setUsername('');
     setPassword('');
+    setCategory('');
   }, []);
 
   return {
@@ -213,6 +219,7 @@ export const usePasswordList = () => {
     title,
     username,
     password,
+    category,
     isDark,
     styles,
 

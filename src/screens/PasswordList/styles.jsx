@@ -481,5 +481,47 @@ export const getStyles = theme => {
       marginRight: 8, // Space between content and action buttons
       justifyContent: 'center',
     },
+
+    inputLabel: {
+      fontSize: 16,
+      fontWeight: '500',
+      marginBottom: 8,
+      marginLeft: 4,
+    },
+    dropdownContainer: {
+      position: 'relative',
+      marginBottom: 8,
+    },
+    dropdownIcon: {
+      position: 'absolute',
+      left: 12,
+      top: 16,
+      zIndex: 1,
+    },
+    dropdown: {
+      height: 50,
+      paddingHorizontal: 40,
+      paddingVertical: 8,
+      fontSize: 16,
+    },
+    placeholderStyle: {
+      fontSize: 16,
+      marginLeft: 8,
+    },
+    selectedTextStyle: {
+      fontSize: 16,
+      marginLeft: 8,
+    },
+    inputSearchStyle: {
+      height: 40,
+      fontSize: 16,
+      borderRadius: 4,
+      paddingHorizontal: 12,
+    },
+    iconStyle: {
+      width: 20,
+      height: 20,
+      marginRight: 12,
+    },
   });
 };
