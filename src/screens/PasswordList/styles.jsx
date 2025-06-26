@@ -362,10 +362,10 @@ export const getStyles = theme => {
     // FAB
     fab: {
       position: 'absolute',
+      backgroundColor: isDark ? '#ffffff' : '#000000',
       margin: 20,
       right: 0,
       bottom: 0,
-      backgroundColor: '#ff4757',
       borderRadius: 16,
     },
 

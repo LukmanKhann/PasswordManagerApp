@@ -80,12 +80,7 @@ export const PasswordProvider = ({children}) => {
     }
   };
 
-  const addPassword = async (
-    title,
-    username,
-    password,
-    category,
-  ) => {
+  const addPassword = async (title, username, password, category) => {
     if (!user) return;
 
     try {
@@ -120,13 +115,7 @@ export const PasswordProvider = ({children}) => {
     }
   };
 
-  const editPassword = async (
-    id,
-    title,
-    username,
-    password,
-    category,
-  ) => {
+  const editPassword = async (id, title, username, password, category) => {
     if (!user) return;
 
     try {

@@ -40,7 +40,7 @@ const PasswordListScreen = ({navigation}) => {
 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
-  const [sortOrder, setSortOrder] = useState('asc'); 
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const getPasswordsByCategory = category => {
     return filteredPasswords.filter(
@@ -183,16 +183,10 @@ const PasswordListScreen = ({navigation}) => {
 
         {/* FAB */}
         <FAB
-          style={[
-            styles.fab,
-            {
-              backgroundColor: '#6366f1',
-              borderRadius: 16,
-            },
-          ]}
+          style={[styles.fab]}
           icon="plus"
           onPress={() => navigation.navigate('AddPassword')}
-          color="#ffffff"
+          color={isDark ? '#000000' : '#ffffff'}
           disabled={loading}
         />
 

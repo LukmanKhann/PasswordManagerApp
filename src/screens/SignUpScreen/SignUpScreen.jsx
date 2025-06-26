@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {FIREBASE_AUTH} from '../Firebase/FirebaseConfig';
 import {createStyles} from './styles';
 import { ThemeContext } from '../../Theme/ThemeProvider';
+import { FIREBASE_AUTH } from '../../Firebase/FirebaseConfig';
 
 const SignUpScreen = ({navigation}) => {
   const [name, setName] = useState('');

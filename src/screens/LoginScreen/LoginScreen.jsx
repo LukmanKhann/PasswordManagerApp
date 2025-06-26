@@ -34,7 +34,7 @@ const LoginScreen = ({navigation}) => {
     try {
       await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
     } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert('Login Failed', 'Check your email and password!');
     } finally {
       setLoading(false);
     }
