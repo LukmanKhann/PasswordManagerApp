@@ -69,7 +69,15 @@ const PasswordListHeader = ({
       {/* Modern Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.headerTitle}>Vault</Text>
+          <View>
+            <Text style={styles.headerTitle}>Fortress Locker</Text>
+            <Text style={styles.headerSubtitle}>
+              Easily store, organize, and manage all{'\n'}your passwords in one
+              secure, {'\n'}encrypted vault—accessible{'\n'}whenever you need,
+              from any device.
+            </Text>
+          </View>
+
           <View style={styles.viewToggle}>
             <TouchableOpacity
               style={[
@@ -82,7 +90,7 @@ const PasswordListHeader = ({
                 size={18}
                 color={
                   viewMode === 'grid'
-                    ? '#ffffff'
+                    ? '#ff4757'
                     : isDark
                     ? '#cccccc'
                     : '#666666'
@@ -100,7 +108,7 @@ const PasswordListHeader = ({
                 size={18}
                 color={
                   viewMode === 'list'
-                    ? '#ffffff'
+                    ? '#ff4757'
                     : isDark
                     ? '#cccccc'
                     : '#666666'

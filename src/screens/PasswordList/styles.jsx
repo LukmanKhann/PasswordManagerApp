@@ -523,5 +523,12 @@ export const getStyles = theme => {
       height: 20,
       marginRight: 12,
     },
+    headerSubtitle: {
+      fontSize: 13,
+      color: isDark ? '#aaaaaa' : '#888888',
+      marginTop: 4,
+      lineHeight: 17,
+      letterSpacing: 0.3,
+    },
   });
 };
