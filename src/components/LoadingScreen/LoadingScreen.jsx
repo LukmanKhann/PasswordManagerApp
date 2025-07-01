@@ -1,11 +1,24 @@
-// LoadingScreen.js
 import React from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 const LoadingScreen = () => (
-  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-    <ActivityIndicator size="large" color="#0000ff" />
+  <View style={styles.container}>
+    <LottieView
+      source={require('../../../assets/animations/passwordLoaderAnimation.json')} 
+      autoPlay
+      loop
+      style={{ width: 150, height: 150 }}
+    />
   </View>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default LoadingScreen;

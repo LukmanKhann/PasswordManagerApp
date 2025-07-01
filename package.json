@@ -30,6 +30,7 @@
     "firebase": "^10.12.2",
     "formik": "^2.4.6",
     "install": "^0.13.0",
+    "lottie-react-native": "^7.2.3",
     "npm": "^10.8.1",
     "react": "18.2.0",
     "react-native": "0.74.2",
