@@ -1,14 +1,14 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 
 const LoadingScreen = () => (
   <View style={styles.container}>
     <LottieView
-      source={require('../../../assets/animations/passwordLoaderAnimation.json')} 
+      source={require('../../assets/animations/passwordLoaderAnimation.json')}
       autoPlay
       loop
-      style={{ width: 150, height: 150 }}
+      style={{width: 150, height: 150}}
     />
   </View>
 );

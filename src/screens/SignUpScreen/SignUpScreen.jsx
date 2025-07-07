@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,8 +11,9 @@ import {
 import {createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {createStyles} from './styles';
-import { ThemeContext } from '../../Theme/ThemeProvider';
-import { FIREBASE_AUTH } from '../../Firebase/FirebaseConfig';
+import {ThemeContext} from '../../Theme/ThemeProvider';
+import {FIREBASE_AUTH} from '../../Firebase/FirebaseConfig';
+import CustomSnackbar from '../../CustomSanckBar';
 
 const SignUpScreen = ({navigation}) => {
   const [name, setName] = useState('');
@@ -30,19 +30,19 @@ const SignUpScreen = ({navigation}) => {
 
   const validateInputs = () => {
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter your name');
+      CustomSnackbar.info('Please enter your name');
       return false;
     }
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email');
+      CustomSnackbar.info('Please enter your email');
       return false;
     }
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long');
+      CustomSnackbar.warning('Password must be at least 6 characters long');
       return false;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      CustomSnackbar.warning('Passwords do not match');
       return false;
     }
     return true;
@@ -63,9 +63,9 @@ const SignUpScreen = ({navigation}) => {
         displayName: name,
       });
 
-      Alert.alert('Success', 'Account created successfully!');
+      CustomSnackbar.success('Account created successfully!');
     } catch (error) {
-      Alert.alert('Sign Up Failed', error.message);
+      CustomSnackbar.error(`Sign Up Failed: ${error.message}`);
     } finally {
       setLoading(false);
     }

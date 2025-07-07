@@ -1,33 +1,32 @@
 import {AppState} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import AppNavigator from './src/Navigations/AppNavigator';
 import {PaperProvider} from 'react-native-paper';
 import {PasswordProvider} from './src/context/PasswordContext/PasswordContext';
-import LoadingScreen from './src/components/LoadingScreen/LoadingScreen';
-import {AuthProvider} from './src/Auth/AuthContext';
+import {AuthProvider, AuthContext} from './src/Auth/AuthContext';
 import {ThemeProvider} from './src/Theme/ThemeProvider';
 import AuthLockScreen from './src/components/Biometric/auth/AuthLockScreen';
 import BiometricAuthService from './src/components/Biometric/service/BiometricAuth';
+import LoadingScreen from './src/LoadingScreen/LoadingScreen';
 
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const AppContent = () => {
+  const {user, loading} = useContext(AuthContext);
+  const [isBiometricAuthenticated, setIsBiometricAuthenticated] =
+    useState(false);
+  const [needsBiometricAuth, setNeedsBiometricAuth] = useState(false);
+  const [checkingBiometric, setCheckingBiometric] = useState(true);
 
   useEffect(() => {
-    checkAuthState();
-  }, []);
+    if (!loading) {
+      checkBiometricAuthState();
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     const handleAppStateChange = async nextAppState => {
-      if (nextAppState === 'active') {
-        const biometricAuthenticated =
-          await BiometricAuthService.isAuthenticated();
-        const numericAuthenticated =
-          await BiometricAuthService.verifyNumericPassword();
-
-        if (!biometricAuthenticated || !numericAuthenticated) {
-          setIsAuthenticated(false);
-        }
+      if (nextAppState === 'active' && user && isBiometricAuthenticated) {
+        setIsBiometricAuthenticated(false);
+        setNeedsBiometricAuth(true);
       }
     };
 
@@ -39,41 +38,75 @@ const App = () => {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [user, isBiometricAuthenticated]);
 
-  const checkAuthState = async () => {
-    const authenticated = await BiometricAuthService.isAuthenticated();
-    setIsAuthenticated(authenticated);
+  const checkBiometricAuthState = async () => {
+    try {
+      setCheckingBiometric(true);
+
+      if (user) {
+        const biometricEnabled =
+          await BiometricAuthService.isBiometricEnabled();
+        const hasNumericPassword =
+          await BiometricAuthService.hasNumericPassword();
+
+        if (biometricEnabled || hasNumericPassword) {
+          setNeedsBiometricAuth(true);
+          setIsBiometricAuthenticated(false);
+        } else {
+          setIsBiometricAuthenticated(true);
+          setNeedsBiometricAuth(false);
+        }
+      } else {
+        setIsBiometricAuthenticated(false);
+        setNeedsBiometricAuth(false);
+      }
+    } catch (error) {
+      console.error('Error checking biometric auth state:', error);
+      setIsBiometricAuthenticated(false);
+      setNeedsBiometricAuth(false);
+    } finally {
+      setCheckingBiometric(false);
+    }
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+  const handleBiometricAuthenticated = () => {
+    setIsBiometricAuthenticated(true);
+    setNeedsBiometricAuth(false);
+  };
 
-  if (isLoading) {
+  const handleBiometricSetupRequired = () => {
+    setIsBiometricAuthenticated(true);
+    setNeedsBiometricAuth(false);
+  };
+
+  if (loading || checkingBiometric) {
     return <LoadingScreen />;
   }
 
+  if (user && needsBiometricAuth && !isBiometricAuthenticated) {
+    return (
+      <AuthLockScreen
+        onAuthenticated={handleBiometricAuthenticated}
+        onSetupRequired={handleBiometricSetupRequired}
+      />
+    );
+  }
+
+  return <AppNavigator isAuthenticated={!!user} />;
+};
+
+const App = () => {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <PasswordProvider>
-          <PaperProvider>
-            {!isAuthenticated && (
-              <AuthLockScreen
-                onAuthenticated={() => setIsAuthenticated(true)}
-                onSetupRequired={() => {
-                  /* navigate to setup */
-                }}
-              />
-            )}
-            {isAuthenticated && <AppNavigator />}
-          </PaperProvider>
-        </PasswordProvider>
-      </AuthProvider>
-    </ThemeProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <PasswordProvider>
+            <PaperProvider>
+              <AppContent />
+            </PaperProvider>
+          </PasswordProvider>
+        </AuthProvider>
+      </ThemeProvider>
   );
 };
 

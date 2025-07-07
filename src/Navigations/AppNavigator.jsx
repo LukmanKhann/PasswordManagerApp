@@ -8,15 +8,15 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import PasswordGenerator from '../screens/PasswordGenerator/PasswordGenerator';
 import {AuthContext} from '../Auth/AuthContext';
-import LoadingScreen from '../components/LoadingScreen/LoadingScreen';
 import LoginScreen from '../screens/LoginScreen/LoginScreen';
 import {ThemeContext} from '../Theme/ThemeProvider';
 import SignUpScreen from '../screens/SignUpScreen/SignUpScreen';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const AppNavigator = () => {
+const AppNavigator = ({isAuthenticated}) => {
   const {user, loading} = useContext(AuthContext);
   const {theme} = useContext(ThemeContext);
 

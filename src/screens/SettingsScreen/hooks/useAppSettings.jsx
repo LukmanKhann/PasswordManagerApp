@@ -2,6 +2,7 @@ import {useContext} from 'react';
 import {Alert} from 'react-native';
 import {ThemeContext} from '../../../Theme/ThemeProvider';
 import {AuthContext} from '../../../Auth/AuthContext';
+import CustomSnackbar from '../../../CustomSanckBar';
 
 export const useAppSettings = () => {
   const {theme, toggleTheme} = useContext(ThemeContext);
@@ -24,30 +25,30 @@ export const useAppSettings = () => {
   };
 
   const handleBackupSync = () => {
-    Alert.alert('Coming Soon', 'This feature will be available soon');
+    CustomSnackbar.info('Coming Soon', 'This feature will be available soon');
   };
 
   const handleExportData = () => {
-    Alert.alert('Coming Soon', 'This feature will be available soon');
+    CustomSnackbar.info('Coming Soon', 'This feature will be available soon');
   };
 
   const handleImportData = () => {
-    Alert.alert('Coming Soon', 'This feature will be available soon');
+    CustomSnackbar.info('Coming Soon', 'This feature will be available soon');
   };
 
   const handleHelpSupport = () => {
-    Alert.alert('Help', 'Contact us at support@securevault.com');
+    CustomSnackbar.success('Help', 'Contact us at support@securevault.com');
   };
 
   const handleAbout = () => {
-    Alert.alert(
+    CustomSnackbar.info(
       'About SecureVault',
       'Version 1.0.0\nBuilt with security in mind',
     );
   };
 
   const handleRateApp = () => {
-    Alert.alert('Rate Us', 'Thank you for using SecureVault!');
+    CustomSnackbar.info('Rate Us', 'Thank you for using SecureVault!');
   };
 
   return {

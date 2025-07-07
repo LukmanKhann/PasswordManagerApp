@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   StatusBar,
   Animated,
   AppState,
@@ -13,6 +12,8 @@ import BiometricAuthService from '../service/BiometricAuth';
 import NumericPasswordModal from '../components/NumericPasswordModal';
 import {ThemeContext} from '../../../Theme/ThemeProvider';
 import {createStyles} from './styles';
+import CustomSnackbar from '../../../CustomSanckBar';
+import CustomModal from '../../../components/CustomModal';
 
 const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
   const {theme} = useContext(ThemeContext);
@@ -28,7 +29,15 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [attempts, setAttempts] = useState(0);
   const [hasAttemptedBiometric, setHasAttemptedBiometric] = useState(false);
+  const [showBiometricCancelled, setShowBiometricCancelled] = useState(false);
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
   const fadeAnim = new Animated.Value(0);
+  const shakeAnim = new Animated.Value(0);
 
   useEffect(() => {
     initializeAuth();
@@ -37,6 +46,7 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
       if (nextAppState === 'active') {
         setAttempts(0);
         setHasAttemptedBiometric(false);
+        setShowBiometricCancelled(false);
         initializeAuth();
       }
     };
@@ -75,13 +85,11 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
       });
       setBiometryType(biometryTypeResult);
 
-      // If no authentication methods are set up, redirect to setup
       if (!biometricEnabled && !hasNumericPassword) {
         onSetupRequired?.();
         return;
       }
 
-      // Auto-attempt biometric if enabled and hasn't been attempted yet
       if (biometricEnabled && !hasAttemptedBiometric) {
         setHasAttemptedBiometric(true);
         setTimeout(() => {
@@ -95,7 +103,37 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
     }
   };
 
-  const handleBiometricAuth = async () => {
+  const shakeAnimation = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: -10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 10,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shakeAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleBiometricAuth = async (isCancelled = false) => {
+    if (isCancelled) {
+      setShowBiometricCancelled(true);
+      return;
+    }
+
     try {
       const result = await BiometricAuthService.authenticateWithBiometric(
         'Unlock SecureVault',
@@ -103,33 +141,21 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
       );
 
       if (result.success) {
+        setShowBiometricCancelled(false);
         setTimeout(() => {
           onAuthenticated();
         }, 200);
       } else {
         setAttempts(prev => prev + 1);
         if (authMethods.numeric) {
-          // Show numeric password option if available
-          setShowNumericModal(true);
-        } else {
-          Alert.alert(
-            'Authentication Failed',
-            'Biometric authentication canceled. No numeric password set up.',
-            [{text: 'OK'}],
-          );
+          setShowBiometricCancelled(true);
         }
       }
     } catch (error) {
       console.error('Biometric auth error:', error);
       setAttempts(prev => prev + 1);
       if (authMethods.numeric) {
-        setShowNumericModal(true);
-      } else {
-        Alert.alert(
-          'Authentication Error',
-          'Biometric authentication failed. No numeric password set up.',
-          [{text: 'OK'}],
-        );
+        setShowBiometricCancelled(true);
       }
     }
   };
@@ -143,34 +169,57 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
       if (isValid) {
         setShowNumericModal(false);
         setAttempts(0);
+        setShowBiometricCancelled(false);
         setTimeout(() => {
           onAuthenticated();
         }, 200);
+        return true;
       } else {
         setAttempts(prev => prev + 1);
 
         if (attempts >= 4) {
-          Alert.alert(
-            'Too Many Attempts',
-            'Please try again later or contact support.',
-            [{text: 'OK'}],
-          );
+          setModalConfig({
+            title: 'Too Many Attempts',
+            message: 'Please try again later or contact support.',
+            onConfirm: () => setShowCustomModal(false),
+          });
+          setShowCustomModal(true);
         } else {
-          Alert.alert(
-            'Incorrect Password',
+          CustomSnackbar.error(
             `Invalid password. ${5 - attempts - 1} attempts remaining.`,
-            [{text: 'OK'}],
           );
         }
+        return false;
       }
     } catch (error) {
       console.error('Numeric auth error:', error);
-      Alert.alert('Error', 'Authentication failed. Please try again.');
+      CustomSnackbar.error('Authentication failed. Please try again.');
+      return false;
     }
   };
 
   const handleUseNumeric = () => {
+    setShowBiometricCancelled(false);
     setShowNumericModal(true);
+  };
+
+  const handleRetryBiometric = () => {
+    setShowBiometricCancelled(false);
+    handleBiometricAuth();
+  };
+
+  const handleForgotPassword = () => {
+    setTimeout(async () => {
+      try {
+        await BiometricAuthService.setBiometricEnabled(false);
+        await BiometricAuthService.setNumericPassword('');
+        setTimeout(() => {
+          onSetupRequired?.();
+        }, 1000);
+      } catch (error) {
+        console.error('Error resetting auth:', error);
+      }
+    }, 2000);
   };
 
   if (isLoading) {
@@ -180,11 +229,14 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
           barStyle={isDark ? 'light-content' : 'dark-content'}
           backgroundColor={isDark ? '#000000' : '#ffffff'}
         />
-        <MaterialCommunityIcons
-          name="loading"
-          size={40}
-          color={isDark ? '#ffffff' : '#000000'}
-        />
+        <View style={styles.loadingContainer}>
+          <MaterialCommunityIcons
+            name="loading"
+            size={40}
+            color={isDark ? '#ffffff' : '#000000'}
+          />
+          <Text style={styles.loadingText}>Initializing...</Text>
+        </View>
       </View>
     );
   }
@@ -208,13 +260,37 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
         <Text style={styles.tagline}>Your passwords, secured</Text>
       </Animated.View>
 
-      <Animated.View style={[styles.authContainer, {opacity: fadeAnim}]}>
+      <Animated.View
+        style={[
+          styles.authContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{translateX: shakeAnim}],
+          },
+        ]}>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
           Unlock your vault to access your passwords
         </Text>
 
-        {authMethods.biometric && (
+        {/* Biometric Authentication Cancelled State */}
+        {showBiometricCancelled && (
+          <View style={styles.cancelledContainer}>
+            <MaterialCommunityIcons
+              name="alert-circle-outline"
+              size={24}
+              color={isDark ? '#ff6b6b' : '#e74c3c'}
+            />
+            <Text style={styles.cancelledText}>
+              {biometryType} authentication was cancelled
+            </Text>
+            <Text style={styles.cancelledSubtext}>
+              Choose another method to continue
+            </Text>
+          </View>
+        )}
+
+        {authMethods.biometric && !showBiometricCancelled && (
           <TouchableOpacity
             style={[styles.authButton, styles.authButtonPrimary]}
             onPress={handleBiometricAuth}
@@ -232,26 +308,69 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
           </TouchableOpacity>
         )}
 
-        {authMethods.biometric && authMethods.numeric && (
+        {/* Show retry and numeric options when biometric is cancelled */}
+        {showBiometricCancelled && authMethods.biometric && (
+          <View style={styles.retryContainer}>
+            <TouchableOpacity
+              style={[styles.authButton, styles.authButtonSecondary]}
+              onPress={handleRetryBiometric}
+              activeOpacity={0.8}>
+              <MaterialCommunityIcons
+                name={
+                  biometryType === 'Face ID'
+                    ? 'face-recognition'
+                    : 'fingerprint'
+                }
+                size={24}
+                color={isDark ? '#ffffff' : '#000000'}
+              />
+              <Text style={styles.authButtonText}>
+                Try {biometryType} Again
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {((authMethods.biometric &&
+          authMethods.numeric &&
+          !showBiometricCancelled) ||
+          (showBiometricCancelled && authMethods.numeric)) && (
           <Text style={styles.orText}>or</Text>
         )}
 
         {authMethods.numeric && (
           <TouchableOpacity
-            style={styles.authButton}
+            style={[
+              styles.authButton,
+              showBiometricCancelled && styles.authButtonHighlighted,
+            ]}
             onPress={() => setShowNumericModal(true)}
             activeOpacity={0.8}>
             <MaterialCommunityIcons
               name="numeric"
               size={24}
-              color={isDark ? '#ffffff' : '#000000'}
+              color={
+                showBiometricCancelled
+                  ? isDark
+                    ? '#000000'
+                    : '#ffffff'
+                  : isDark
+                  ? '#ffffff'
+                  : '#000000'
+              }
             />
-            <Text style={styles.authButtonText}>Use Numeric Password</Text>
+            <Text
+              style={[
+                styles.authButtonText,
+                showBiometricCancelled && styles.authButtonTextHighlighted,
+              ]}>
+              Use Numeric Password
+            </Text>
           </TouchableOpacity>
         )}
       </Animated.View>
 
-      {authMethods.numeric && (
+      {authMethods.numeric && !showBiometricCancelled && (
         <View style={styles.helpContainer}>
           <Text style={styles.helpText}>
             Having trouble with biometric authentication?
@@ -268,31 +387,18 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
         visible={showNumericModal}
         onClose={() => setShowNumericModal(false)}
         onSuccess={handleNumericAuth}
-        onForgot={() => {
-          Alert.alert(
-            'Reset Authentication',
-            'This will require you to sign in again and set up your authentication methods. Continue?',
-            [
-              {text: 'Cancel', style: 'cancel'},
-              {
-                text: 'Reset',
-                style: 'destructive',
-                onPress: async () => {
-                  try {
-                    await BiometricAuthService.setBiometricEnabled(false);
-                    await BiometricAuthService.setNumericPassword('');
-                    onSetupRequired?.();
-                  } catch (error) {
-                    console.error('Error resetting auth:', error);
-                  }
-                },
-              },
-            ],
-          );
-        }}
+        onForgot={handleForgotPassword}
         title="Enter Password"
         subtitle="Enter your 4-digit password to unlock"
         mode="verify"
+      />
+
+      <CustomModal
+        visible={showCustomModal}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        onClose={() => setShowCustomModal(false)}
+        onConfirm={modalConfig.onConfirm}
       />
     </View>
   );

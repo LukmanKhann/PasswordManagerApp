@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import {Alert} from 'react-native';
 import BiometricAuthService from '../../../components/Biometric/service/BiometricAuth';
+import CustomSnackbar from '../../../CustomSanckBar';
 
 export const useSecuritySettings = () => {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -38,7 +39,7 @@ export const useSecuritySettings = () => {
       setAutoLockEnabled(autoLockStatus);
     } catch (error) {
       console.error('Error initializing settings:', error);
-      Alert.alert('Error', 'Failed to load security settings.');
+      CustomSnackbar.error('Error', 'Failed to load security settings.');
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ export const useSecuritySettings = () => {
       }
 
       if (enabled && !biometricAvailable) {
-        Alert.alert(
+        CustomSnackbar.warning(
           'Biometric Not Available',
           'Biometric authentication is not available on this device.',
         );
@@ -68,12 +69,12 @@ export const useSecuritySettings = () => {
         setBiometricEnabled(enabled);
 
         if (enabled) {
-          Alert.alert(
+          CustomSnackbar.success(
             'Biometric Enabled',
             `${biometryType} authentication has been enabled successfully.`,
           );
         } else {
-          Alert.alert(
+          CustomSnackbar.error(
             'Biometric Disabled',
             'Biometric authentication has been disabled.',
           );
@@ -83,7 +84,7 @@ export const useSecuritySettings = () => {
       return false;
     } catch (error) {
       console.error('Error toggling biometric:', error);
-      Alert.alert('Error', 'Failed to update biometric settings.');
+      CustomSnackbar.error('Error', 'Failed to update biometric settings.');
       return false;
     }
   };
@@ -98,7 +99,7 @@ export const useSecuritySettings = () => {
       return false;
     } catch (error) {
       console.error('Error toggling auto-lock:', error);
-      Alert.alert('Error', 'Failed to update auto-lock settings.');
+      CustomSnackbar.error('Error', 'Failed to update auto-lock settings.');
       return false;
     }
   };

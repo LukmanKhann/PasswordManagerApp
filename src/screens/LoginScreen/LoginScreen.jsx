@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,6 +13,7 @@ import {signInWithEmailAndPassword} from 'firebase/auth';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ThemeContext} from '../../Theme/ThemeProvider';
 import {FIREBASE_AUTH} from '../../Firebase/FirebaseConfig';
+import CustomSnackbar from '../../CustomSanckBar';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -26,15 +26,16 @@ const LoginScreen = ({navigation}) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      CustomSnackbar.warning('Please fill in all fields');
       return;
     }
 
     setLoading(true);
     try {
       await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      CustomSnackbar.success('Login successful! Redirecting...');
     } catch (error) {
-      Alert.alert('Login Failed', 'Check your email and password!');
+      CustomSnackbar.error('Login Failed: Check your email and password!');
     } finally {
       setLoading(false);
     }

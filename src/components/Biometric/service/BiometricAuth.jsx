@@ -1,6 +1,6 @@
 import ReactNativeBiometrics from 'react-native-biometrics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert} from 'react-native';
+import CustomSnackbar from '../../../CustomSanckBar';
 
 const rnBiometrics = new ReactNativeBiometrics();
 
@@ -29,8 +29,7 @@ class BiometricAuthService {
       if (enabled) {
         const {available} = await this.isBiometricAvailable();
         if (!available) {
-          Alert.alert(
-            'Biometric Not Available',
+          CustomSnackbar.warning(
             'Biometric authentication is not available on this device.',
           );
           return false;
