@@ -5,8 +5,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {createStyles} from './styles';
 import NumericPasswordModal from '../../components/Biometric/components/NumericPasswordModal';
 import {useAppSettings} from './hooks/useAppSettings';
-import {usePasswordSettings} from './hooks/useSecuritySettings';
-import {useSecuritySettings} from './hooks/usePasswordSettings';
+import {usePasswordSettings} from './hooks/usePasswordSettings';
+import {useSecuritySettings} from './hooks/useSecuritySettings';
 
 import UserProfileHeader from './components/UserProfileHeader';
 import SecuritySection from './components/sections/SecuritySection';
@@ -20,7 +20,8 @@ export default function SettingScreen() {
   const passwordSettings = usePasswordSettings(
     securitySettings.hasNumericPassword,
     securitySettings.setHasNumericPassword,
-    enabled => securitySettings.handleBiometricToggle(enabled),
+    (enabled, suppressSnackbar = false) => securitySettings.handleBiometricToggle(enabled, suppressSnackbar),
+    securitySettings.biometricEnabled,
   );
 
   const {isDark, handleLogout, user} = appSettings;

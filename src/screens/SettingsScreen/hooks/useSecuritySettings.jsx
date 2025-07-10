@@ -1,72 +1,149 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import {Alert} from 'react-native';
 import BiometricAuthService from '../../../components/Biometric/service/BiometricAuth';
 import CustomSnackbar from '../../../CustomSanckBar';
-import CustomModal from '../../../components/CustomModal';
 
-export const usePasswordSettings = (
-  hasNumericPassword,
-  setHasNumericPassword,
-  setBiometricEnabled,
-) => {
-  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [passwordModalMode, setPasswordModalMode] = useState('set');
+export const useSecuritySettings = () => {
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometryType, setBiometryType] = useState('Biometric');
+  const [hasNumericPassword, setHasNumericPassword] = useState(false);
+  const [autoLockEnabled, setAutoLockEnabled] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const handleSetNumericPassword = () => {
-    if (hasNumericPassword) {
-      setShowSetPasswordModal(true);
-    } else {
-      setPasswordModalMode('set');
-      setShowSetPasswordModal(true);
+  useEffect(() => {
+    initializeSettings();
+  }, []);
+
+  const initializeSettings = async () => {
+    try {
+      setLoading(true);
+      const [
+        biometricEnabledStatus,
+        biometricAvailability,
+        biometryTypeResult,
+        numericPasswordStatus,
+        autoLockStatus,
+      ] = await Promise.all([
+        BiometricAuthService.isBiometricEnabled(),
+        BiometricAuthService.isBiometricAvailable(),
+        BiometricAuthService.getBiometryType(),
+        BiometricAuthService.hasNumericPassword(),
+        BiometricAuthService.isAutoLockEnabled(),
+      ]);
+
+      setBiometricEnabled(biometricEnabledStatus);
+      setBiometricAvailable(biometricAvailability.available);
+      setBiometryType(biometryTypeResult);
+      setHasNumericPassword(numericPasswordStatus);
+      setAutoLockEnabled(autoLockStatus);
+    } catch (error) {
+      console.error('Error initializing settings:', error);
+      CustomSnackbar.error('Error', 'Failed to load security settings.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePasswordSet = async password => {
+  const handleBiometricToggle = async (enabled, suppressSnackbar = false) => {
     try {
-      const success = await BiometricAuthService.setNumericPassword(password);
-      if (success) {
-        setHasNumericPassword(true);
-        setShowSetPasswordModal(false);
-        setShowChangePasswordModal(false);
-        CustomSnackbar.success(
-          'Your numeric password has been set successfully.',
+      if (enabled && !hasNumericPassword) {
+        Alert.alert(
+          'Numeric Password Required',
+          'You must set up a numeric password before enabling biometric authentication.',
+          [{text: 'OK', style: 'default'}],
         );
-        return true;
-      } else {
-        CustomSnackbar.error('Failed to set password. Please try again.');
         return false;
       }
+
+      if (enabled && !biometricAvailable) {
+        if (!suppressSnackbar) {
+          CustomSnackbar.warning(
+            'Biometric Not Available',
+            'Biometric authentication is not available on this device.',
+          );
+        }
+        return false;
+      }
+
+      const success = await BiometricAuthService.setBiometricEnabled(enabled);
+      if (success) {
+        setBiometricEnabled(enabled);
+
+        if (!suppressSnackbar) {
+          if (enabled) {
+            CustomSnackbar.success(
+              'Biometric Enabled',
+              `${biometryType} authentication has been enabled successfully.`,
+            );
+          } else {
+            CustomSnackbar.error(
+              'Biometric Disabled',
+              'Biometric authentication has been disabled.',
+            );
+          }
+        }
+        return true;
+      }
+      return false;
     } catch (error) {
-      console.error('Error setting password:', error);
-      CustomSnackbar.error('Failed to set password.');
+      console.error('Error toggling biometric:', error);
+      if (!suppressSnackbar) {
+        CustomSnackbar.error('Error', 'Failed to update biometric settings.');
+      }
       return false;
     }
   };
 
-  const handleRemoveNumericPassword = () => {
-    if (!hasNumericPassword) return;
-
-    setShowSetPasswordModal(true);
+  const handleAutoLockToggle = async enabled => {
+    try {
+      const success = await BiometricAuthService.setAutoLockEnabled(enabled);
+      if (success) {
+        setAutoLockEnabled(enabled);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error toggling auto-lock:', error);
+      CustomSnackbar.error('Error', 'Failed to update auto-lock settings.');
+      return false;
+    }
   };
 
-  const handleChangeMasterPassword = () => {
-    CustomSnackbar.info('This feature will be available soon');
+  const getAuthenticationStatus = () => {
+    if (biometricEnabled && hasNumericPassword) {
+      return `${biometryType} + Numeric`;
+    } else if (biometricEnabled) {
+      return biometryType;
+    } else if (hasNumericPassword) {
+      return 'Numeric Only';
+    }
+    return 'Not Configured';
+  };
+
+  const canEnableBiometric = () => {
+    return biometricAvailable && hasNumericPassword;
   };
 
   return {
-    // Modal states
-    showSetPasswordModal,
-    showChangePasswordModal,
-    passwordModalMode,
+    // State
+    biometricEnabled,
+    biometricAvailable,
+    biometryType,
+    hasNumericPassword,
+    autoLockEnabled,
+    loading,
 
     // Actions
-    handleSetNumericPassword,
-    handlePasswordSet,
-    handleRemoveNumericPassword,
-    handleChangeMasterPassword,
+    handleBiometricToggle,
+    handleAutoLockToggle,
+    initializeSettings,
 
-    // Modal controls
-    setShowSetPasswordModal,
-    setShowChangePasswordModal,
+    // Computed values
+    getAuthenticationStatus,
+    canEnableBiometric,
+
+    // State setters (for password management)
+    setHasNumericPassword,
   };
 };
