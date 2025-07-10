@@ -6,19 +6,23 @@ export const createStyles = isDark => ({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.95)',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 100,
   },
   container: {
     width: width * 0.9,
     maxWidth: 400,
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    paddingBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.3,
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
     shadowRadius: 20,
-    elevation: 20,
+    elevation: 25,
   },
   containerLight: {
     backgroundColor: '#ffffff',
@@ -39,8 +43,8 @@ export const createStyles = isDark => ({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
-    marginTop: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
   },
   headerIcon: {
     width: 64,
@@ -57,10 +61,11 @@ export const createStyles = isDark => ({
     backgroundColor: '#2a1a1a',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: '600',
     textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 8,
   },
   titleLight: {
     color: '#000000',
@@ -69,9 +74,9 @@ export const createStyles = isDark => ({
     color: '#ffffff',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   subtitleLight: {
     color: '#666666',
@@ -82,89 +87,86 @@ export const createStyles = isDark => ({
   passwordContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 40,
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    marginVertical: 10,
+    gap: 20,
   },
   passwordDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginHorizontal: 8,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
-  },
-  passwordDotLight: {
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f5f5f5',
+    borderColor: isDark ? '#4a4a4a' : '#d0d0d0',
+    backgroundColor: 'transparent',
   },
   passwordDotDark: {
-    borderColor: '#404040',
-    backgroundColor: '#2a2a2a',
+    borderColor: '#4a4a4a',
+  },
+  passwordDotLight: {
+    borderColor: '#d0d0d0',
   },
   passwordDotFilled: {
     backgroundColor: '#ff1744',
     borderColor: '#ff1744',
   },
-  keypad: {
-    marginBottom: 24,
+  // Visible input for keyboard interaction
+  visibleInput: {
+    height: 56,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: isDark ? '#ff1744' : '#ff5252',
+    backgroundColor: isDark ? '#23232b' : '#fff0f0',
+    paddingHorizontal: 20,
+    fontSize: 14,
+    color: isDark ? '#fff' : '#222',
+    textAlign: 'center',
   },
-  keypadRow: {
+  // Clean, modern action buttons
+  actionButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  numberButtonContainer: {
-    width: (width * 0.9 - 48 - 32) / 3,
-    maxWidth: 80,
-    aspectRatio: 1,
-  },
-  numberButton: {
-    flex: 1,
-    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-  },
-  numberButtonLight: {
-    backgroundColor: '#ffffff',
-    borderColor: '#f0f0f0',
-  },
-  numberButtonDark: {
-    backgroundColor: '#2a2a2a',
-    borderColor: '#404040',
-  },
-  numberText: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  numberTextLight: {
-    color: '#000000',
-  },
-  numberTextDark: {
-    color: '#ffffff',
+    gap: 15,
+    marginTop: 20,
+    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   actionButton: {
-    width: (width * 0.9 - 48 - 32) / 3,
-    maxWidth: 80,
-    aspectRatio: 1,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 40,
+    borderWidth: 1,
   },
   biometricButton: {
-    backgroundColor: '#ffebee',
+    backgroundColor: isDark ? '#1a1a2e' : '#fff5f5',
+    borderColor: '#ff1744',
   },
   backspaceButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
+    borderColor: isDark ? '#404040' : '#e0e0e0',
+  },
+  tapToEnterButton: {
+    backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
+    borderColor: isDark ? '#404040' : '#e0e0e0',
   },
   footer: {
     alignItems: 'center',
     minHeight: 40,
+    paddingHorizontal: 20,
   },
   forgotButton: {
     paddingVertical: 8,
   },
   forgotText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '400',
+    textAlign: 'center',
+    color: isDark ? '#ff1744' : '#ff5252',
+    textDecorationColor: isDark ? '#ff1744' : '#ff5252',
   },
   forgotTextLight: {
     color: '#ff1744',
@@ -181,5 +183,12 @@ export const createStyles = isDark => ({
   },
   attemptsTextDark: {
     color: '#cccccc',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    opacity: 0,
+    width: 1,
+    height: 1,
+    left: -1000,
   },
 });

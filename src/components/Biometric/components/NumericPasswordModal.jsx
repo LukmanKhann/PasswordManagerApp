@@ -11,16 +11,14 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-  Dimensions,
   StatusBar,
   SafeAreaView,
-  StyleSheet,
+  TextInput,
+  Keyboard,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ThemeContext} from '../../../Theme/ThemeProvider';
 import {createStyles} from './styles';
-
-const {width, height} = Dimensions.get('window');
 
 const NumericPasswordModal = ({
   visible,
@@ -46,6 +44,7 @@ const NumericPasswordModal = ({
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const passwordInputRef = useRef(null);
 
   useEffect(() => {
     if (visible) {
@@ -60,6 +59,7 @@ const NumericPasswordModal = ({
     setPassword('');
     setConfirmPassword('');
     setIsConfirmMode(false);
+    setAttempts(0);
   };
 
   const showModal = () => {
@@ -75,10 +75,15 @@ const NumericPasswordModal = ({
         friction: 7,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+      }, 300);
+    });
   };
 
   const hideModal = () => {
+    Keyboard.dismiss();
     fadeAnim.setValue(0);
     scaleAnim.setValue(0.95);
     shakeAnimation.setValue(0);
@@ -97,60 +102,80 @@ const NumericPasswordModal = ({
     Animated.sequence(animations).start();
   }, [shakeAnimation]);
 
-  const handleNumberPress = useCallback(
-    number => {
-      if (mode === 'set' && isConfirmMode) {
-        if (confirmPassword.length < maxLength) {
-          const newConfirmPassword = confirmPassword + number;
-          setConfirmPassword(newConfirmPassword);
+  const handlePasswordChange = text => {
+    const numericText = text.replace(/[^0-9]/g, '');
 
-          if (newConfirmPassword.length === maxLength) {
-            if (newConfirmPassword === password) {
-              onSuccess(password);
-            } else {
-              setError('Passwords do not match');
-              setConfirmPassword('');
-              setPassword('');
-              setIsConfirmMode(false);
-              setAttempts(prev => prev + 1);
-              shakeError();
-            }
-          }
-        }
-      } else {
-        if (password.length < maxLength) {
-          const newPassword = password + number;
-          setPassword(newPassword);
+    if (mode === 'set' && isConfirmMode) {
+      if (numericText.length <= maxLength) {
+        setConfirmPassword(numericText);
 
-          if (newPassword.length === maxLength) {
-            if (mode === 'verify') {
-              const result = onSuccess(newPassword);
-              if (result === false) {
-                setTimeout(() => {
-                  setPassword('');
-                  setAttempts(prev => prev + 1);
-                  shakeError();
-                }, 100);
-              }
-            } else if (mode === 'set') {
-              setIsConfirmMode(true);
-            }
-          }
+        if (numericText.length === maxLength) {
+          setTimeout(() => {
+            handlePasswordSubmit(numericText, true);
+          }, 100);
         }
       }
-    },
-    [
-      mode,
-      isConfirmMode,
-      confirmPassword,
-      password,
-      maxLength,
-      onSuccess,
-      shakeError,
-    ],
-  );
+    } else {
+      if (numericText.length <= maxLength) {
+        setPassword(numericText);
 
-  const handleBackspace = useCallback(() => {
+        if (numericText.length === maxLength) {
+          setTimeout(() => {
+            handlePasswordSubmit(numericText, false);
+          }, 100);
+        }
+      }
+    }
+  };
+
+  const handlePasswordSubmit = (inputPassword = null, isConfirming = false) => {
+    const currentPassword =
+      inputPassword || (isConfirming ? confirmPassword : password);
+
+    if (currentPassword.length !== maxLength) {
+      return;
+    }
+
+    if (mode === 'set' && (isConfirming || isConfirmMode)) {
+      if (currentPassword === password) {
+        Keyboard.dismiss();
+        onSuccess(password);
+      } else {
+        setConfirmPassword('');
+        setPassword('');
+        setIsConfirmMode(false);
+        setAttempts(prev => prev + 1);
+        shakeError();
+
+        setTimeout(() => {
+          passwordInputRef.current?.focus();
+        }, 500);
+      }
+    } else if (mode === 'verify') {
+      const result = onSuccess(currentPassword);
+      if (result === false) {
+        setTimeout(() => {
+          setPassword('');
+          setAttempts(prev => prev + 1);
+          shakeError();
+
+          setTimeout(() => {
+            passwordInputRef.current?.focus();
+          }, 500);
+        }, 100);
+      } else {
+        Keyboard.dismiss();
+      }
+    } else if (mode === 'set' && !isConfirmMode) {
+      setIsConfirmMode(true);
+
+      setTimeout(() => {
+        passwordInputRef.current?.focus();
+      }, 100);
+    }
+  };
+
+  const handleBackspace = () => {
     if (mode === 'set' && isConfirmMode) {
       if (confirmPassword.length > 0) {
         setConfirmPassword(confirmPassword.slice(0, -1));
@@ -162,7 +187,7 @@ const NumericPasswordModal = ({
         setPassword(password.slice(0, -1));
       }
     }
-  }, [mode, isConfirmMode, confirmPassword, password]);
+  };
 
   const getCurrentPassword = () => {
     return mode === 'set' && isConfirmMode ? confirmPassword : password;
@@ -181,49 +206,6 @@ const NumericPasswordModal = ({
     }
     return subtitle;
   };
-
-  // Optimized NumberButton component
-  const NumberButton = React.memo(({number, onPress}) => {
-    const scaleValue = useRef(new Animated.Value(1)).current;
-
-    const handlePressIn = () => {
-      Animated.spring(scaleValue, {
-        toValue: 0.95,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    const handlePressOut = () => {
-      Animated.spring(scaleValue, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    return (
-      <TouchableOpacity
-        style={styles.numberButtonContainer}
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={1}>
-        <Animated.View
-          style={[
-            styles.numberButton,
-            isDark ? styles.numberButtonDark : styles.numberButtonLight,
-            {transform: [{scale: scaleValue}]},
-          ]}>
-          <Text
-            style={[
-              styles.numberText,
-              isDark ? styles.numberTextDark : styles.numberTextLight,
-            ]}>
-            {number}
-          </Text>
-        </Animated.View>
-      </TouchableOpacity>
-    );
-  });
 
   return (
     <Modal
@@ -284,71 +266,61 @@ const NumericPasswordModal = ({
             </Text>
           </View>
 
-          {/* Password Dots */}
-          <View style={styles.passwordContainer}>
-            {Array.from({length: maxLength}).map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.passwordDot,
-                  isDark ? styles.passwordDotDark : styles.passwordDotLight,
-                  index < getCurrentPassword().length &&
-                    styles.passwordDotFilled,
-                ]}
+          {/* Input Row: TextInput + Backspace */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            {/* Visible TextInput for keyboard interaction */}
+            <TextInput
+              ref={passwordInputRef}
+              style={styles.visibleInput}
+              value={getCurrentPassword()}
+              onChangeText={handlePasswordChange}
+              onSubmitEditing={() => handlePasswordSubmit()}
+              keyboardType="numeric"
+              secureTextEntry={true}
+              maxLength={maxLength}
+              autoFocus={false}
+              caretHidden={true}
+              contextMenuHidden={true}
+              placeholder="Tap to enter password"
+              placeholderTextColor={isDark ? '#666666' : '#999999'}
+            />
+            {/* Backspace Button */}
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                styles.backspaceButton,
+                {marginLeft: 25},
+              ]}
+              onPress={handleBackspace}
+              activeOpacity={0.7}>
+              <MaterialCommunityIcons
+                name="backspace-outline"
+                size={20}
+                color={isDark ? '#ffffff' : '#666666'}
               />
-            ))}
+            </TouchableOpacity>
           </View>
 
-          {/* Keypad */}
-          <View style={styles.keypad}>
-            {[
-              [1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9],
-            ].map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.keypadRow}>
-                {row.map(number => (
-                  <NumberButton
-                    key={number}
-                    number={number}
-                    onPress={() => handleNumberPress(number.toString())}
-                  />
-                ))}
-              </View>
-            ))}
-
-            <View style={styles.keypadRow}>
-              {/* Biometric Button */}
+          {/* Action Buttons */}
+          <View style={styles.actionButtonsContainer}>
+            {/* Biometric Button */}
+            {showBiometric && (
               <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  showBiometric && styles.biometricButton,
-                ]}
-                onPress={showBiometric ? onBiometric : undefined}
-                activeOpacity={showBiometric ? 0.7 : 1}>
-                {showBiometric && (
-                  <MaterialCommunityIcons
-                    name="fingerprint"
-                    size={24}
-                    color="#ff1744"
-                  />
-                )}
-              </TouchableOpacity>
-
-              <NumberButton number={0} onPress={() => handleNumberPress('0')} />
-
-              {/* Backspace Button */}
-              <TouchableOpacity
-                style={[styles.actionButton, styles.backspaceButton]}
-                onPress={handleBackspace}
+                style={[styles.actionButton, styles.biometricButton]}
+                onPress={onBiometric}
                 activeOpacity={0.7}>
                 <MaterialCommunityIcons
-                  name="backspace-outline"
-                  size={24}
-                  color={isDark ? '#ffffff' : '#000000'}
+                  name="fingerprint"
+                  size={20}
+                  color="#ff1744"
                 />
               </TouchableOpacity>
-            </View>
+            )}
           </View>
 
           {/* Footer */}

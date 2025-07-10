@@ -247,142 +247,35 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
         barStyle={isDark ? 'light-content' : 'dark-content'}
         backgroundColor={isDark ? '#000000' : '#ffffff'}
       />
-
-      <Animated.View style={[styles.logoContainer, {opacity: fadeAnim}]}>
+      <View style={styles.logoContainer}>
         <View style={styles.logo}>
           <MaterialCommunityIcons
             name="shield-lock"
-            size={50}
-            color={isDark ? '#ffffff' : '#000000'}
+            size={60}
+            color={isDark ? '#ff1744' : '#ff5252'}
           />
         </View>
         <Text style={styles.appName}>SecureVault</Text>
         <Text style={styles.tagline}>Your passwords, secured</Text>
-      </Animated.View>
-
-      <Animated.View
-        style={[
-          styles.authContainer,
-          {
-            opacity: fadeAnim,
-            transform: [{translateX: shakeAnim}],
-          },
-        ]}>
+      </View>
+      <View style={styles.authContainer}>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
           Unlock your vault to access your passwords
         </Text>
-
-        {/* Biometric Authentication Cancelled State */}
-        {showBiometricCancelled && (
-          <View style={styles.cancelledContainer}>
-            <MaterialCommunityIcons
-              name="alert-circle-outline"
-              size={24}
-              color={isDark ? '#ff6b6b' : '#e74c3c'}
-            />
-            <Text style={styles.cancelledText}>
-              {biometryType} authentication was cancelled
+        {authMethods.numeric && !showBiometricCancelled && (
+          <View style={styles.helpContainer}>
+            <Text style={styles.helpText}>
+              Having trouble with biometric authentication?
             </Text>
-            <Text style={styles.cancelledSubtext}>
-              Choose another method to continue
-            </Text>
-          </View>
-        )}
-
-        {authMethods.biometric && !showBiometricCancelled && (
-          <TouchableOpacity
-            style={[styles.authButton, styles.authButtonPrimary]}
-            onPress={handleBiometricAuth}
-            activeOpacity={0.8}>
-            <MaterialCommunityIcons
-              name={
-                biometryType === 'Face ID' ? 'face-recognition' : 'fingerprint'
-              }
-              size={24}
-              color={isDark ? '#000000' : '#ffffff'}
-            />
-            <Text style={[styles.authButtonText, styles.authButtonTextPrimary]}>
-              Use {biometryType}
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {/* Show retry and numeric options when biometric is cancelled */}
-        {showBiometricCancelled && authMethods.biometric && (
-          <View style={styles.retryContainer}>
             <TouchableOpacity
-              style={[styles.authButton, styles.authButtonSecondary]}
-              onPress={handleRetryBiometric}
-              activeOpacity={0.8}>
-              <MaterialCommunityIcons
-                name={
-                  biometryType === 'Face ID'
-                    ? 'face-recognition'
-                    : 'fingerprint'
-                }
-                size={24}
-                color={isDark ? '#ffffff' : '#000000'}
-              />
-              <Text style={styles.authButtonText}>
-                Try {biometryType} Again
-              </Text>
+              style={styles.helpButton}
+              onPress={handleUseNumeric}>
+              <Text style={styles.helpButtonText}>Use Numeric Password</Text>
             </TouchableOpacity>
           </View>
         )}
-
-        {((authMethods.biometric &&
-          authMethods.numeric &&
-          !showBiometricCancelled) ||
-          (showBiometricCancelled && authMethods.numeric)) && (
-          <Text style={styles.orText}>or</Text>
-        )}
-
-        {authMethods.numeric && (
-          <TouchableOpacity
-            style={[
-              styles.authButton,
-              showBiometricCancelled && styles.authButtonHighlighted,
-            ]}
-            onPress={() => setShowNumericModal(true)}
-            activeOpacity={0.8}>
-            <MaterialCommunityIcons
-              name="numeric"
-              size={24}
-              color={
-                showBiometricCancelled
-                  ? isDark
-                    ? '#000000'
-                    : '#ffffff'
-                  : isDark
-                  ? '#ffffff'
-                  : '#000000'
-              }
-            />
-            <Text
-              style={[
-                styles.authButtonText,
-                showBiometricCancelled && styles.authButtonTextHighlighted,
-              ]}>
-              Use Numeric Password
-            </Text>
-          </TouchableOpacity>
-        )}
-      </Animated.View>
-
-      {authMethods.numeric && !showBiometricCancelled && (
-        <View style={styles.helpContainer}>
-          <Text style={styles.helpText}>
-            Having trouble with biometric authentication?
-          </Text>
-          <TouchableOpacity
-            style={styles.helpButton}
-            onPress={handleUseNumeric}>
-            <Text style={styles.helpButtonText}>Use Numeric Password</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
+      </View>
       <NumericPasswordModal
         visible={showNumericModal}
         onClose={() => setShowNumericModal(false)}
@@ -392,7 +285,6 @@ const AuthLockScreen = ({onAuthenticated, onSetupRequired}) => {
         subtitle="Enter your 4-digit password to unlock"
         mode="verify"
       />
-
       <CustomModal
         visible={showCustomModal}
         title={modalConfig.title}
