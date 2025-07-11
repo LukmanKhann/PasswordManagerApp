@@ -130,8 +130,6 @@ const PasswordListScreen = ({navigation}) => {
         <PasswordListHeader
           isDark={isDark}
           styles={styles}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           filteredPasswords={filteredPasswords}
@@ -144,6 +142,8 @@ const PasswordListScreen = ({navigation}) => {
           onChangeText={handleSearch}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
         />
 
         {/* Password List */}

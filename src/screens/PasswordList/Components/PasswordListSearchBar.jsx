@@ -14,6 +14,8 @@ const PasswordListSearchBar = ({
   onChangeText,
   sortOrder,
   onSortChange,
+  viewMode,
+  setViewMode,
 }) => {
   const {theme} = useContext(ThemeContext);
   const isDark = theme === 'dark';
@@ -95,6 +97,33 @@ const PasswordListSearchBar = ({
             },
           ]}>
           {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Grid/List View Toggle Section */}
+      <TouchableOpacity
+        onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+        style={[
+          styles.sortButton,
+          {
+            backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+            borderColor: isDark ? '#334155' : '#e2e8f0',
+          },
+        ]}
+        activeOpacity={0.7}>
+        <Icon
+          name={viewMode === 'grid' ? 'grid-view' : 'list'}
+          size={20}
+          color={isDark ? '#6366f1' : '#4f46e5'}
+        />
+        <Text
+          style={[
+            styles.sortText,
+            {
+              color: isDark ? '#6366f1' : '#4f46e5',
+            },
+          ]}>
+          {viewMode === 'grid' ? 'Grid' : 'List'}
         </Text>
       </TouchableOpacity>
     </View>

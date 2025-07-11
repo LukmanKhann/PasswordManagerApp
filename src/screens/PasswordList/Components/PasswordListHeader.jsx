@@ -5,8 +5,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 const PasswordListHeader = ({
   isDark,
   styles,
-  viewMode,
-  setViewMode,
   selectedCategory,
   setSelectedCategory,
   filteredPasswords,
@@ -72,49 +70,10 @@ const PasswordListHeader = ({
           <View>
             <Text style={styles.headerTitle}>Fortress Locker</Text>
             <Text style={styles.headerSubtitle}>
-              Easily store, organize, and manage all{'\n'}your passwords in one
-              secure, {'\n'}encrypted vault—accessible{'\n'}whenever you need,
+              Easily store, organize, and manage all your passwords in one
+              secure, encrypted vault—accessible whenever you need,
               from any device.
             </Text>
-          </View>
-
-          <View style={styles.viewToggle}>
-            <TouchableOpacity
-              style={[
-                styles.viewToggleBtn,
-                viewMode === 'grid' && styles.viewToggleBtnActive,
-              ]}
-              onPress={() => setViewMode('grid')}>
-              <Icon
-                name="grid-view"
-                size={18}
-                color={
-                  viewMode === 'grid'
-                    ? '#ff4757'
-                    : isDark
-                    ? '#cccccc'
-                    : '#666666'
-                }
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.viewToggleBtn,
-                viewMode === 'list' && styles.viewToggleBtnActive,
-              ]}
-              onPress={() => setViewMode('list')}>
-              <Icon
-                name="list"
-                size={18}
-                color={
-                  viewMode === 'list'
-                    ? '#ff4757'
-                    : isDark
-                    ? '#cccccc'
-                    : '#666666'
-                }
-              />
-            </TouchableOpacity>
           </View>
         </View>
       </View>
