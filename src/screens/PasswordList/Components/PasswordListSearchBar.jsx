@@ -49,7 +49,7 @@ const PasswordListSearchBar = ({
               color: isDark ? '#f1f5f9' : '#0f172a',
             },
           ]}
-          placeholder="Search passwords..."
+          placeholder="Search Cred"
           placeholderTextColor={isDark ? '#64748b' : '#94a3b8'}
           value={value}
           onChangeText={onChangeText}

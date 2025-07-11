@@ -9,10 +9,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-import {TextInput} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Dropdown} from 'react-native-element-dropdown';
 
@@ -32,6 +32,7 @@ export default function AddPasswordScreen({navigation}) {
   const {addPassword} = useContext(PasswordContext);
   const {theme} = useContext(ThemeContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
   const styles = getStyles(theme);
   const isDark = theme === 'dark';
 
@@ -75,214 +76,263 @@ export default function AddPasswordScreen({navigation}) {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Add Credentials</Text>
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <View style={styles.headerIconContainer}>
+                <Icon
+                  name="shield-plus"
+                  size={32}
+                  color={isDark ? '#FFFFFF' : '#000000'}
+                />
+              </View>
+              <Text style={styles.title}>Add New Credential</Text>
               <Text style={styles.subtitle}>
-                Save your authentication details securely
+                Secure your digital identity with encrypted storage
               </Text>
+            </View>
 
-              <Formik
-                initialValues={{
-                  title: '',
-                  username: '',
-                  password: '',
-                  category: '',
-                }}
-                validationSchema={validationSchema}
-                onSubmit={(values, {resetForm}) => {
-                  handleSave(values);
-                  resetForm();
-                }}>
-                {({
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  setFieldValue,
-                  values,
-                  errors,
-                  touched,
-                }) => (
-                  <View style={styles.form}>
-                    {/* Domain */}
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.label}>Domain</Text>
-                      <View style={styles.inputContainer}>
+            <Formik
+              initialValues={{
+                title: '',
+                username: '',
+                password: '',
+                category: '',
+              }}
+              validationSchema={validationSchema}
+              onSubmit={(values, {resetForm}) => {
+                handleSave(values);
+                resetForm();
+              }}>
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                setFieldValue,
+                values,
+                errors,
+                touched,
+              }) => (
+                <View style={styles.formContainer}>
+                  {/* Domain Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Domain</Text>
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        focusedField === 'title' &&
+                          styles.inputContainerFocused,
+                        touched.title &&
+                          errors.title &&
+                          styles.inputContainerError,
+                      ]}>
+                      <View style={styles.inputIconContainer}>
                         <Icon
                           name="web"
                           size={20}
-                          color={isDark ? '#888888' : '#666666'}
-                          style={styles.inputIcon}
-                        />
-                        <TextInput
-                          value={values.title}
-                          onChangeText={handleChange('title')}
-                          onBlur={handleBlur('title')}
-                          style={styles.input}
-                          mode="outlined"
-                          placeholder="example.com"
-                          placeholderTextColor={isDark ? '#666666' : '#999999'}
-                          outlineStyle={styles.inputOutline}
-                          contentStyle={styles.inputContent}
-                          theme={{
-                            colors: {
-                              primary: isDark ? '#FFFFFF' : '#000000',
-                              outline: isDark ? '#333333' : '#E0E0E0',
-                              onSurfaceVariant: isDark ? '#888888' : '#666666',
-                              background: 'transparent',
-                            },
-                          }}
+                          color={
+                            focusedField === 'title'
+                              ? isDark
+                                ? '#FFFFFF'
+                                : '#000000'
+                              : isDark
+                              ? '#666666'
+                              : '#999999'
+                          }
                         />
                       </View>
-                      {touched.title && errors.title && (
-                        <Text style={styles.errorText}>{errors.title}</Text>
-                      )}
+                      <TextInput
+                        value={values.title}
+                        onChangeText={handleChange('title')}
+                        onBlur={e => {
+                          handleBlur('title')(e);
+                          setFocusedField(null);
+                        }}
+                        onFocus={() => setFocusedField('title')}
+                        style={styles.textInput}
+                        placeholder="Enter domain (e.g., google.com)"
+                        placeholderTextColor={isDark ? '#666666' : '#999999'}
+                      />
                     </View>
+                    {touched.title && errors.title && (
+                      <View style={styles.errorContainer}>
+                        <Icon name="alert-circle" size={12} color="#FF4444" />
+                        <Text style={styles.errorText}>{errors.title}</Text>
+                      </View>
+                    )}
+                  </View>
 
-                    {/* Username */}
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.label}>Username</Text>
-                      <View style={styles.inputContainer}>
+                  {/* Username Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Username</Text>
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        focusedField === 'username' &&
+                          styles.inputContainerFocused,
+                        touched.username &&
+                          errors.username &&
+                          styles.inputContainerError,
+                      ]}>
+                      <View style={styles.inputIconContainer}>
                         <Icon
                           name="account"
                           size={20}
-                          color={isDark ? '#888888' : '#666666'}
-                          style={styles.inputIcon}
-                        />
-                        <TextInput
-                          value={values.username}
-                          onChangeText={handleChange('username')}
-                          onBlur={handleBlur('username')}
-                          style={styles.input}
-                          mode="outlined"
-                          placeholder="your@email.com"
-                          placeholderTextColor={isDark ? '#666666' : '#999999'}
-                          outlineStyle={styles.inputOutline}
-                          contentStyle={styles.inputContent}
-                          theme={{
-                            colors: {
-                              primary: isDark ? '#FFFFFF' : '#000000',
-                              outline: isDark ? '#333333' : '#E0E0E0',
-                              onSurfaceVariant: isDark ? '#888888' : '#666666',
-                              background: 'transparent',
-                            },
-                          }}
+                          color={
+                            focusedField === 'username'
+                              ? isDark
+                                ? '#FFFFFF'
+                                : '#000000'
+                              : isDark
+                              ? '#666666'
+                              : '#999999'
+                          }
                         />
                       </View>
-                      {touched.username && errors.username && (
-                        <Text style={styles.errorText}>{errors.username}</Text>
-                      )}
+                      <TextInput
+                        value={values.username}
+                        onChangeText={handleChange('username')}
+                        onBlur={e => {
+                          handleBlur('username')(e);
+                          setFocusedField(null);
+                        }}
+                        onFocus={() => setFocusedField('username')}
+                        style={styles.textInput}
+                        placeholder="Enter username or email"
+                        placeholderTextColor={isDark ? '#666666' : '#999999'}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                      />
                     </View>
+                    {touched.username && errors.username && (
+                      <View style={styles.errorContainer}>
+                        <Icon name="alert-circle" size={12} color="#FF4444" />
+                        <Text style={styles.errorText}>{errors.username}</Text>
+                      </View>
+                    )}
+                  </View>
 
-                    {/* Password */}
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.label}>Password</Text>
-                      <View style={styles.inputContainer}>
+                  {/* Password Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Password</Text>
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        focusedField === 'password' &&
+                          styles.inputContainerFocused,
+                        touched.password &&
+                          errors.password &&
+                          styles.inputContainerError,
+                      ]}>
+                      <View style={styles.inputIconContainer}>
                         <Icon
                           name="lock"
                           size={20}
-                          color={isDark ? '#888888' : '#666666'}
-                          style={styles.inputIcon}
-                        />
-                        <View style={styles.passwordInputWrapper}>
-                          <TextInput
-                            value={values.password}
-                            onChangeText={handleChange('password')}
-                            onBlur={handleBlur('password')}
-                            secureTextEntry={!showPassword}
-                            style={styles.input}
-                            mode="outlined"
-                            placeholder="Enter password"
-                            placeholderTextColor={
-                              isDark ? '#666666' : '#999999'
-                            }
-                            outlineStyle={styles.inputOutline}
-                            contentStyle={styles.inputContent}
-                            theme={{
-                              colors: {
-                                primary: isDark ? '#FFFFFF' : '#000000',
-                                outline: isDark ? '#333333' : '#E0E0E0',
-                                onSurfaceVariant: isDark
-                                  ? '#888888'
-                                  : '#666666',
-                                background: 'transparent',
-                              },
-                            }}
-                          />
-                          <Pressable
-                            onPress={() => setShowPassword(!showPassword)}
-                            style={styles.eyeIconContainer}>
-                            <Icon
-                              name={showPassword ? 'eye-off' : 'eye'}
-                              size={20}
-                              color={isDark ? '#888888' : '#666666'}
-                            />
-                          </Pressable>
-                        </View>
-                      </View>
-                      {touched.password && errors.password && (
-                        <Text style={styles.errorText}>{errors.password}</Text>
-                      )}
-                    </View>
-
-                    {/* Category Dropdown */}
-                    <View style={styles.inputGroup}>
-                      <Text style={styles.label}>Category</Text>
-                      <View>
-                        <Icon
-                          name="view-list"
-                          size={20}
-                          color={isDark ? '#888888' : '#666666'}
-                          style={[styles.inputIcon, {marginTop: 18}]}
-                        />
-                        <Dropdown
-                          data={categories}
-                          labelField="label"
-                          valueField="value"
-                          placeholder="Select category"
-                          searchPlaceholder="Search..."
-                          value={values.category}
-                          onChange={item =>
-                            setFieldValue('category', item.value)
+                          color={
+                            focusedField === 'password'
+                              ? isDark
+                                ? '#FFFFFF'
+                                : '#000000'
+                              : isDark
+                              ? '#666666'
+                              : '#999999'
                           }
-                          style={styles.dropdown}
-                          placeholderStyle={styles.placeholderStyle}
-                          selectedTextStyle={styles.selectedTextStyle}
-                          inputSearchStyle={styles.inputSearchStyle}
-                          iconStyle={styles.iconStyle}
-                          itemContainerStyle={{
-                            backgroundColor: isDark ? '#000000' : '#FFFFFF',
-                            borderRadius: 0,
-                            borderColor: isDark ? '#2A2A2A' : '#E0E0E0',
-                          }}
-                          activeColor="grey"
                         />
-                        {touched.category && errors.category && (
-                          <Text style={styles.errorText}>
-                            {errors.category}
-                          </Text>
-                        )}
                       </View>
+                      <TextInput
+                        value={values.password}
+                        onChangeText={handleChange('password')}
+                        onBlur={e => {
+                          handleBlur('password')(e);
+                          setFocusedField(null);
+                        }}
+                        onFocus={() => setFocusedField('password')}
+                        style={styles.textInput}
+                        placeholder="Enter password"
+                        placeholderTextColor={isDark ? '#666666' : '#999999'}
+                        secureTextEntry={!showPassword}
+                      />
+                      <Pressable
+                        onPress={() => setShowPassword(!showPassword)}
+                        style={styles.eyeIconContainer}>
+                        <Icon
+                          name={showPassword ? 'eye-off' : 'eye'}
+                          size={20}
+                          color={isDark ? '#666666' : '#999999'}
+                        />
+                      </Pressable>
                     </View>
+                    {touched.password && errors.password && (
+                      <View style={styles.errorContainer}>
+                        <Icon name="alert-circle" size={12} color="#FF4444" />
+                        <Text style={styles.errorText}>{errors.password}</Text>
+                      </View>
+                    )}
+                  </View>
 
-                    {/* Submit Button */}
+                  {/* Category Dropdown */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.inputLabel}>Category</Text>
+                    <View
+                      style={[
+                        styles.inputContainer,
+                        touched.category &&
+                          errors.category &&
+                          styles.inputContainerError,
+                      ]}>
+                      <View style={styles.inputIconContainer}>
+                        <Icon
+                          name="folder"
+                          size={20}
+                          color={isDark ? '#666666' : '#999999'}
+                        />
+                      </View>
+                      <Dropdown
+                        data={categories}
+                        labelField="label"
+                        valueField="value"
+                        placeholder="Select category"
+                        searchPlaceholder="Search categories..."
+                        value={values.category}
+                        onChange={item => setFieldValue('category', item.value)}
+                        style={styles.dropdown}
+                        placeholderStyle={styles.dropdownPlaceholder}
+                        selectedTextStyle={styles.dropdownSelectedText}
+                        inputSearchStyle={styles.dropdownSearch}
+                        iconStyle={styles.dropdownIcon}
+                        containerStyle={styles.dropdownContainer}
+                        itemTextStyle={styles.dropdownItemText}
+                        activeColor={isDark ? '#333333' : '#F5F5F5'}
+                      />
+                    </View>
+                    {touched.category && errors.category && (
+                      <View style={styles.errorContainer}>
+                        <Icon name="alert-circle" size={12} color="#FF4444" />
+                        <Text style={styles.errorText}>{errors.category}</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Submit Button */}
+                  <View style={styles.buttonContainer}>
                     <Pressable
                       onPress={handleSubmit}
                       style={({pressed}) => [
-                        styles.button,
-                        pressed && styles.buttonPressed,
+                        styles.submitButton,
+                        pressed && styles.submitButtonPressed,
                       ]}>
                       <Icon
-                        name="content-save"
+                        name="shield-check"
                         size={20}
                         color={isDark ? '#000000' : '#FFFFFF'}
-                        style={styles.buttonIcon}
                       />
-                      <Text style={styles.buttonText}>Save Credentials</Text>
+                      <Text style={styles.submitButtonText}>
+                        Save Credential
+                      </Text>
                     </Pressable>
                   </View>
-                )}
-              </Formik>
-            </View>
+                </View>
+              )}
+            </Formik>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>

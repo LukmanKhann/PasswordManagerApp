@@ -30,23 +30,23 @@ const AppContent = () => {
     }
   }, [user, loading]);
 
+  // Only require biometric auth if app was killed, not just backgrounded
   useEffect(() => {
+    let lastState = AppState.currentState;
     const handleAppStateChange = async nextAppState => {
-      if (nextAppState === 'active' && user && isBiometricAuthenticated) {
-        setIsBiometricAuthenticated(false);
-        setNeedsBiometricAuth(true);
+      if (lastState.match(/inactive|background/) && nextAppState === 'active') {
+        // App is returning from background, do NOT reset biometric unless app was killed
+        // Optionally, check a flag in AsyncStorage to see if app was killed
+        // If you want to force auth after long inactivity, add logic here
       }
+      lastState = nextAppState;
     };
-
     const subscription = AppState.addEventListener(
       'change',
       handleAppStateChange,
     );
-
-    return () => {
-      subscription.remove();
-    };
-  }, [user, isBiometricAuthenticated]);
+    return () => subscription.remove();
+  }, []);
 
   const checkBiometricAuthState = async () => {
     try {
@@ -106,15 +106,15 @@ const AppContent = () => {
 
 const App = () => {
   return (
-      <ThemeProvider>
-        <AuthProvider>
-          <PasswordProvider>
-            <PaperProvider>
-              <AppContent />
-            </PaperProvider>
-          </PasswordProvider>
-        </AuthProvider>
-      </ThemeProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <PasswordProvider>
+          <PaperProvider>
+            <AppContent />
+          </PaperProvider>
+        </PasswordProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

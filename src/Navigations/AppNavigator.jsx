@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
+import {useRef, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AddPasswordScreen from '../screens/AddPassword/AddPasswordScreen';
 import PasswordListScreen from '../screens/PasswordList/PasswordListScreen';
@@ -12,6 +13,7 @@ import LoginScreen from '../screens/LoginScreen/LoginScreen';
 import {ThemeContext} from '../Theme/ThemeProvider';
 import SignUpScreen from '../screens/SignUpScreen/SignUpScreen';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,8 +28,30 @@ const AppNavigator = ({isAuthenticated}) => {
     return <LoadingScreen />;
   }
 
+  const navigationRef = useRef();
+  const [navState, setNavState] = useState();
+  const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
+
+  React.useEffect(() => {
+    const restoreState = async () => {
+      try {
+        const savedStateString = await AsyncStorage.getItem(PERSISTENCE_KEY);
+        const state = savedStateString
+          ? JSON.parse(savedStateString)
+          : undefined;
+        if (state) setNavState(state);
+      } catch (e) {}
+    };
+    restoreState();
+  }, []);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      initialState={navState}
+      onStateChange={state =>
+        AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state))
+      }>
       {user ? (
         <Tab.Navigator
           initialRouteName="Passwords"
