@@ -136,7 +136,6 @@ export const getStyles = theme => {
       marginBottom: 12,
     },
     domainIcon: {
-      width: 140,
       height: 40,
       borderRadius: 12,
       marginBottom: 14,
