@@ -15,6 +15,14 @@ const AppContent = () => {
     useState(false);
   const [needsBiometricAuth, setNeedsBiometricAuth] = useState(false);
   const [checkingBiometric, setCheckingBiometric] = useState(true);
+  const [minimumLoading, setMinimumLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinimumLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -80,7 +88,7 @@ const AppContent = () => {
     setNeedsBiometricAuth(false);
   };
 
-  if (loading || checkingBiometric) {
+  if (loading || checkingBiometric || minimumLoading) {
     return <LoadingScreen />;
   }
 
