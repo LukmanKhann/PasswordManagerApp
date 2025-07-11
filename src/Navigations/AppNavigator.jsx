@@ -8,15 +8,15 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import PasswordGenerator from '../screens/PasswordGenerator/PasswordGenerator';
 import {AuthContext} from '../Auth/AuthContext';
-import LoadingScreen from '../components/LoadingScreen/LoadingScreen';
-import LoginScreen from '../LoginScreen/LoginScreen';
-import SignUpScreen from '../SignUpScreen/SignUpScreen';
+import LoginScreen from '../screens/LoginScreen/LoginScreen';
 import {ThemeContext} from '../Theme/ThemeProvider';
+import SignUpScreen from '../screens/SignUpScreen/SignUpScreen';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const AppNavigator = () => {
+const AppNavigator = ({isAuthenticated}) => {
   const {user, loading} = useContext(AuthContext);
   const {theme} = useContext(ThemeContext);
 
@@ -48,7 +48,7 @@ const AppNavigator = () => {
             name="Passwords"
             component={PasswordListScreen}
             options={{
-              title: 'Credentials',
+              title: 'Vault',
               tabBarLabel: 'Vault',
               tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
@@ -64,7 +64,7 @@ const AppNavigator = () => {
             name="AddPassword"
             component={AddPasswordScreen}
             options={{
-              title: 'Add Credentials',
+              title: 'Credentials',
               tabBarLabel: 'Add Credentials',
               tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
@@ -80,7 +80,7 @@ const AppNavigator = () => {
             name="PasswordGenerator"
             component={PasswordGenerator}
             options={{
-              title: 'Password Generator',
+              title: 'Generator',
               tabBarLabel: 'Generator',
               tabBarIcon: ({color}) => (
                 <MaterialCommunityIcons
