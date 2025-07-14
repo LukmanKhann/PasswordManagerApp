@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 
 export const getStyles = isDark =>
   StyleSheet.create({
@@ -217,5 +217,81 @@ export const getStyles = isDark =>
       color: isDark ? '#888888' : '#666666',
       marginLeft: 6,
       fontWeight: '500',
+    },
+
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+
+    // Toggle button to switch between slider and text input
+    toggleButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDark ? '#333333' : '#f0f0f0',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: isDark ? '#555555' : '#e0e0e0',
+    },
+
+    toggleButtonText: {
+      color: isDark ? '#ffffff' : '#000000',
+      fontSize: 12,
+      fontWeight: '500',
+      marginLeft: 4,
+    },
+
+    // Slider container
+    sliderContainer: {
+      backgroundColor: isDark ? '#1a1a1a' : '#f8f8f8',
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: isDark ? '#333333' : '#e0e0e0',
+    },
+
+    sliderHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+
+    sliderLabel: {
+      color: isDark ? '#ffffff' : '#000000',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+
+    sliderRange: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+
+    sliderRangeText: {
+      color: isDark ? '#888888' : '#666666',
+      fontSize: 12,
+      marginHorizontal: 8,
+    },
+
+    slider: {
+      width: '100%',
+      height: 40,
+    },
+
+    sliderThumb: {
+      backgroundColor: isDark ? '#ffffff' : '#000000',
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+    },
+
+    sliderTrack: {
+      height: 4,
+      borderRadius: 2,
     },
   });

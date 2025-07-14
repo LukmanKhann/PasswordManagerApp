@@ -127,15 +127,6 @@ const PasswordListScreen = ({navigation}) => {
         backgroundColor={isDark ? '#0f172a' : '#f8fafc'}
       />
       <View style={styles.container}>
-        <PasswordListHeader
-          isDark={isDark}
-          styles={styles}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          filteredPasswords={filteredPasswords}
-          getPasswordsByCategory={getPasswordsByCategory}
-        />
-
         {/* Enhanced Search Bar with Sorting */}
         <PasswordListSearchBar
           value={searchQuery}
@@ -144,6 +135,15 @@ const PasswordListScreen = ({navigation}) => {
           onSortChange={handleSortChange}
           viewMode={viewMode}
           setViewMode={setViewMode}
+        />
+
+        <PasswordListHeader
+          isDark={isDark}
+          styles={styles}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          filteredPasswords={filteredPasswords}
+          getPasswordsByCategory={getPasswordsByCategory}
         />
 
         {/* Password List */}

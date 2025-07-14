@@ -64,20 +64,6 @@ const PasswordListHeader = ({
 
   return (
     <>
-      {/* Modern Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.headerTitle}>Fortress Locker</Text>
-            <Text style={styles.headerSubtitle}>
-              Easily store, organize, and manage all your passwords in one
-              secure, encrypted vault—accessible whenever you need,
-              from any device.
-            </Text>
-          </View>
-        </View>
-      </View>
-
       {/* Categories */}
       <View style={styles.categoriesContainer}>
         <ScrollView
